@@ -4,9 +4,9 @@
 #include <string.h>
 #include "sockbase.h"
 
-typedef unsigned char	   u_char;
-typedef unsigned short	   u_short;
-typedef unsigned int	   u_int;
+typedef unsigned char      u_char;
+typedef unsigned short     u_short;
+typedef unsigned int       u_int;
 typedef unsigned long long u_longlong;
 
 typedef struct F_REQ_MSG_CONTENT {
@@ -40,10 +40,10 @@ typedef struct HB_MSG_CONTENT {
     u_char msg_type;
 }HB_MsgContent;
 
-FReq_MsgContent		constructFReqMsg(u_char _prov);
-FRep_MsgContent		constructFRepMsg();
-RData_MsgContent	constructRDataMsg(u_char _prov, u_short _city, u_longlong _number, u_int _time, u_char _optype);
+FReq_MsgContent     constructFReqMsg(u_char _prov);
+FRep_MsgContent     constructFRepMsg();
+RData_MsgContent constructRDataMsg(u_char _prov, u_short _city, u_longlong _number, u_int _time, u_char _optype);
 FData_FinMsgContent constructFDataFinMsg();
-HB_MsgContent		constructHBMsg();
+HB_MsgContent       constructHBMsg();
 
 #endif

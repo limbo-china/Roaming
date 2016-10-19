@@ -6,10 +6,10 @@
 
 extern int g_sockfd;
 
-void *heartBeatDetect();
-void *roamClient();
-void  alarmHandler();
-void  sendHBMsg(int _sock);
-void  sendFRepMsg(int _sock);
+void* heartBeatDetect();
+void* roamClient();
+void alarmHandler();
+void sendHBMsg(int _sock);
+void sendFRepMsg(int _sock);
 
 #endif

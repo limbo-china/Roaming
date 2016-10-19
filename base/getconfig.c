@@ -19,50 +19,53 @@
 /* 参数：1,配置文件路径; 2,匹配名称; 3,输出存储空间                        */
 /* 返回：0,未找到; 1,找到符合名称的值                                      */
 /***************************************************************************/
-int getConfigValue(const char *conf_path, const char *conf_name, char *config_buff){
+int getConfigValue(const char* conf_path, const char* conf_name,
+    char* config_buff)
+{
     char config_linebuf[LINE_MAX_LENGTH];
     char line_name[NAME_MAX_LENGTH];
-    char *config_sign = "=";
-    char *leave_line;
-    FILE *f;
-    int flag =0, len;
+    char* config_sign = "=";
+    char* leave_line;
+    FILE* f;
+    int flag = 0, len;
 
     f = fopen(conf_path, "r");
-    if (f == NULL){
+    if (f == NULL) {
         printf("OPEN CONFIG FALID:%s\n", conf_path);
         return 0;
     }
 
     fseek(f, 0, SEEK_SET);
-    while (fgets(config_linebuf, LINE_MAX_LENGTH, f) != NULL){
-        if (strlen(config_linebuf) < 4){ //去除空行 "=\r\n"
+    while (fgets(config_linebuf, LINE_MAX_LENGTH, f) != NULL) {
+        if (strlen(config_linebuf) < 4) { //去除空行 "=\r\n"
             continue;
         }
 
-        if (config_linebuf[0] == '#'){//去除注释行 "#"
+        if (config_linebuf[0] == '#') { //去除注释行 "#"
             continue;
         }
 
-        if (config_linebuf[strlen(config_linebuf) - 1] == 10){
+        if (config_linebuf[strlen(config_linebuf) - 1] == 10) {
             config_linebuf[strlen(config_linebuf) - 1] = '\0';
         }
 
         memset(line_name, 0, sizeof(line_name));
         leave_line = strstr(config_linebuf, config_sign);
-        if (leave_line == NULL){//去除无"="的情况
+        if (leave_line == NULL) { //去除无"="的情况
             continue;
         }
 
         int leave_num = leave_line - config_linebuf;
-        if (leave_num > NAME_MAX_LENGTH){
+        if (leave_num > NAME_MAX_LENGTH) {
             continue;
         }
 
         strncpy(line_name, config_linebuf, leave_num);
-        if (strcmp(line_name, conf_name) == 0){
+        if (strcmp(line_name, conf_name) == 0) {
             len = strlen(config_linebuf) - leave_num - 1;
             len = len > VALUE_MAX_LENGTH ? VALUE_MAX_LENGTH : len;
-            strncpy(config_buff, config_linebuf + (leave_num + 1), strlen(config_linebuf) - leave_num - 1);
+            strncpy(config_buff, config_linebuf + (leave_num + 1),
+                strlen(config_linebuf) - leave_num - 1);
             *(config_buff + len) = '\0';
             flag = 1;
             break;
