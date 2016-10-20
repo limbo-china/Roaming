@@ -11,5 +11,6 @@ void* roamClient();
 void alarmHandler();
 void sendHBMsg(int _sock);
 void sendFRepMsg(int _sock);
-
+void sendRDataMsg(int _sock);
+int connectToServ();  // connect to the server and return the socket descriptor
 #endif

@@ -20,14 +20,22 @@ typedef struct F_REP_MEG_CONTENT {
     u_char msg_type;
 }FRep_MsgContent;
 
+typedef struct R_DATA_MEG_CONTENT_T {
+    char roamprovince[2];
+    char region[5];
+    char usernumber[13];
+    char time[12];
+    char action[1];
+}RData_MsgContent_T;
+
 typedef struct R_DATA_MEG_CONTENT {
-    u_char msg_length;
-    u_char msg_type;
-    u_char province;
-    u_char city[2];
-    u_char number[8];
-    u_char time[4];
-    u_char oper_type;
+    char length[2];
+    char type[1];
+    char roamprovince[2];
+    char region[5];
+    char usernumber[13];
+    char time[12];
+    char action[1];
 }RData_MsgContent;
 
 typedef struct F_DATA_FIN_MEG_CONTENT {
@@ -42,7 +50,7 @@ typedef struct HB_MSG_CONTENT {
 
 FReq_MsgContent     constructFReqMsg(u_char _prov);
 FRep_MsgContent     constructFRepMsg();
-RData_MsgContent constructRDataMsg(u_char _prov, u_short _city, u_longlong _number, u_int _time, u_char _optype);
+//RData_MsgContent_T constructRDataMsg(u_char _prov, u_short _city, u_longlong _number, u_int _time, u_char _optype);
 FData_FinMsgContent constructFDataFinMsg();
 HB_MsgContent       constructHBMsg();
 

@@ -1,6 +1,6 @@
 #include "msgstruct.h"
 
-static u_longlong htonll(u_longlong n); //unsigned long long 网络字节序转换
+//static u_longlong htonll(u_longlong n); //unsigned long long 网络字节序转换
 
 FReq_MsgContent constructFReqMsg(u_char _prov){
     FReq_MsgContent freq;
@@ -23,26 +23,26 @@ FRep_MsgContent constructFRepMsg(){
 
     return frep;
 }
-RData_MsgContent constructRDataMsg(u_char _prov, u_short _city, u_longlong _number, u_int _time, u_char _optype){
-    RData_MsgContent rdata;
+// RData_MsgContent constructRDataMsg(u_char _prov, u_short _region, u_longlong _number, u_int _time, u_char _action){
+//     RData_MsgContent rdata;
 
-    memset(&rdata, 0, sizeof(RData_MsgContent));
+//     memset(&rdata, 0, sizeof(RData_MsgContent));
 
-    rdata.msg_length = 0x12;
-    rdata.msg_type = 0x03;
-    rdata.province = _prov;
+//     rdata.length = 0x12;
+//     rdata.type = 0x03;
+//     rdata.roamprovince = _prov;
 
-    _city = htons(_city);
-    memcpy(rdata.city, &_city, 2);
-    _number = htonll(_number);
-    memcpy(rdata.number, &_number, 8);
-    _time = htonl(_time);
-    memcpy(rdata.time, &_time, 4);
+//     _region = htons(_region);
+//     memcpy(rdata.region, &_region, 2);
+//     _number = htonll(_number);
+//     memcpy(rdata.usernumber, &_number, 8);
+//     _time = htonl(_time);
+//     memcpy(rdata.time, &_time, 4);
 
-    rdata.oper_type = _optype;
+//     rdata.action = _action;
 
-    return rdata;
-}
+//     return rdata;
+// }
 FData_FinMsgContent constructFDataFinMsg(){
     FData_FinMsgContent fdfin;
 
@@ -62,15 +62,15 @@ HB_MsgContent constructHBMsg(){
     hb.msg_type = 0x05;
     return hb;
 }
-static u_longlong htonll(u_longlong n){
-    u_longlong temp_low, temp_high;
+// static u_longlong htonll(u_longlong n){
+//     u_longlong temp_low, temp_high;
 
-    temp_low  = htonl((unsigned long)n);
-    temp_high = htonl((unsigned long)(n >> 32));
+//     temp_low  = htonl((unsigned long)n);
+//     temp_high = htonl((unsigned long)(n >> 32));
 
-    n  &= 0;
-    n  |= temp_low;
-    n <<= 32;
-    n  |= temp_high;
-    return n;
-}
+//     n  &= 0;
+//     n  |= temp_low;
+//     n <<= 32;
+//     n  |= temp_high;
+//     return n;
+// }

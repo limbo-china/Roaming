@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -g
 INC = -I ./base -I ./src
 SRC =  $(wildcard base/*.c) $(wildcard src/*.c)
-LIB = -lpthread
+LIB = -lpthread -lm
 #OBJ =
 
 all: $(BIN)

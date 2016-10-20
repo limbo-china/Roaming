@@ -1,8 +1,12 @@
 #include "client.h"
+#include "jsontostruct.h"
 
-const int tr2KeepAlive = 3;
-
+const int tr2KeepAlive = 10;
+const int waitReconn = 5;
 int g_sockfd = 0;
+
+const char* test_json = "{\"RoamProvince\": \"31\",\"Region\": \"21512\",\"UserNumber\": \"8613899050320\",\"Time\": \"132817183113\",\"Action\": \"1\"}";
+
 
 void* heartBeatDetect()
 {
@@ -28,40 +32,78 @@ void sendHBMsg(int _sock)
 {
     HB_MsgContent hbmsg = constructHBMsg();
 
-    if (sendn(_sock, &hbmsg, sizeof(hbmsg)) < 0) {
+    int n;
+    if ((n= send(_sock, &hbmsg, sizeof(hbmsg),0)) < 0) {
         //
+        /////reconnect
+        printf("reconnecting to server ...\n");
 
-        /////连接断开,重新连接
+        close(g_sockfd);
+        int t = connectToServ();
+        if (t != 0)
+            g_sockfd = t;
+
+        printf("reconnect succeed.\n");
     }
+    printf("hb :%d\n",n );
 }
 void sendFRepMsg(int _sock)
 {
     FRep_MsgContent frepmsg = constructFRepMsg();
 
-    sendn(_sock, &frepmsg, sizeof(frepmsg));
+    int n;
+    if ((n = send(_sock, &frepmsg, sizeof(frepmsg),0)) < 0) {
+        printf("connection broken!waitting for reconnecting ...\n");
+        sleep(waitReconn); // wait for reconnecting
+        //
+    }
+    printf("frep: %d\n", n);
 }
-void* roamClient()
+void sendRDataMsg(int _sock){
+    RData_MsgContent *rdata = j2s(test_json);
+
+    int n;
+    if ((n = send(_sock, rdata, sizeof(RData_MsgContent),0)) < 0) {
+        printf("connection broken!waitting for reconnecting ...\n");
+        sleep(waitReconn); // wait for reconnecting
+        //
+    }
+    printf("rdata: %d\n", n);
+
+}
+int connectToServ()
 {
+
     char server_ip[20] = { 0 };
     int server_port = 0;
     struct sockaddr_in servaddr;
 
     if (!getSrvCfg(server_ip, &server_port)) {
         printf("get server configuration failed.\n");
-        return NULL;
+        return 0;
     }
 
     int sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 
-    g_sockfd = sockfd;
     servaddr = initSockAddr(server_ip, server_port);
 
     printf("connecting to server ...\n");
     Connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
+    printf("connect succeed.\n");
+
+    return sockfd;
+}
+void* roamClient()
+{
+    int t = connectToServ();
+    if (t != 0)
+        g_sockfd = t;
+    else
+        return NULL;
 
     while (1) {
         sleep(1);
-        sendFRepMsg(sockfd);
+        sendRDataMsg(g_sockfd);
     }
     return NULL;
 }
