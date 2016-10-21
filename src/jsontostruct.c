@@ -1,5 +1,5 @@
 #include "jsontostruct.h"
-
+#define  SINGLEJSONLEN 150
 RData_MsgContent* j2s(const char* _json)
 {
 
@@ -15,13 +15,13 @@ RData_MsgContent* j2s(const char* _json)
 
     cJSON_Delete(json_rdata);
 
-    RData_MsgContent* rdata = malloc(sizeof(RData_MsgContent));
+    RData_MsgContent* rdata = (RData_MsgContent *)malloc(sizeof(RData_MsgContent));
 
     strncpy(rdata->length, "18", 2);
     strncpy(rdata->type, "3", 1);
     strncpy(rdata->roamprovince, (char*)struct_rdata, sizeof(RData_MsgContent_T));
 
-    return rdata;
+    return rdata; 
 
     // char t_roamprovince[4];
     // char t_region[8];
@@ -50,4 +50,43 @@ RData_MsgContent* j2s(const char* _json)
     // for(j=0;j<1;i++,j++)
     //  t_action [j] = *((u_char *)struct_rdata+i);
     // t_action[j]=0;
+}
+void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
+{
+    int cur = 0, scur;
+    char singleJson[SINGLEJSONLEN]= { 0 };
+
+    RData_MsgContent* rdata;
+
+    while (jsonstr[cur] != '[')
+        cur++;
+    while (jsonstr[cur] != ']') {
+        if (jsonstr[cur] == '{') {
+            scur = 0;
+            while (jsonstr[cur] != '}') {
+                singleJson[scur++] = jsonstr[cur];
+                cur++;
+            }
+            singleJson[scur++] = jsonstr[cur];
+            singleJson[scur] = 0;
+
+            // got a single json string. transformat it and put into hashtable.
+            rdata = j2s(singleJson);
+
+            int i;
+    for(i=0;i<sizeof(RData_MsgContent);i++)
+        printf("%d",*((char*)rdata+i));
+    printf("\n");
+    
+            if (!hashtable_search(rdtable, rdata)) {
+                printf("insert a record!\n");
+                hashtable_insert(rdtable, rdata);
+            }
+            printf("hash count: %d\n", hashtable_count(rdtable));
+
+            /////
+            //free(rdata);
+        }
+        cur++;
+    }
 }
