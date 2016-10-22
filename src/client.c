@@ -1,15 +1,14 @@
 #include "client.h"
 #include "jsontostruct.h"
 #include "datahash.h"
-
+#include "rabbit_test.h"
 
 const int tr2KeepAlive = 3;
 const int waitReconn = 5;
 int g_sockfd = 0;
 
-const char* test_json1 = "{\"RoamProvince\": \"31\",\"Region\": \"21512\",\"HomeCode\":\"0353\",\"UserNumber\": \"8613899050320\",\"Time\": \"132817183113\",\"Action\": \"1\"}";
-const char* test_json2 = "{\"RoamProvince\": \"32\",\"Region\": \"41112\",\"HomeCode\":\"0353\",\"UserNumber\": \"8613899050320\",\"Time\": \"13281283113\",\"Action\": \"1\"}";
-const char* test_json3 = "{\"Result\":[{\"RoamProvince\":\"34\",\"Region\":\"370000\",\"HomeCode\":\"0353\",\"UserNumber\":\"8613835330813\",\"Time\":\"1477016938\",\"Action\":\"0\"},{\"RoamProvince\":\"37\",\"Region\":\"370000\",\"HomeCode\":\"0353\",\"UserNumber\":\"8613835330812\",\"Time\":\"1477016938\",\"Action\":\"1\"}]}";
+int datanum =0 ;
+
 void* heartBeatDetect()
 {
     alarmHandler();
@@ -64,16 +63,25 @@ void sendFRepMsg(int _sock)
 void sendRDataMsg(RData_MsgContent* rdata, int _sock)
 {
     int n;
+    datanum++;
     int i;
-    for(i=0;i<sizeof(RData_MsgContent);i++)
-        printf("%d",*((char*)rdata+i));
+    printf("%d\n",sizeof(RData_MsgContent) );
+    printf("%d: ",datanum);
+    printf("%u",rdata->length);
+    printf("%u",rdata->type);
+    printf("%u",rdata->roamprovince);
+    printf("%u",rdata->region);
+    for(i=0; i< 13;i++)
+        printf("%c",*((char*)rdata->usernumber+i) );
+    printf("%u",ntohl(rdata->time));
+    printf("%d",rdata->action);
     printf("\n");
-    // if ((n = send(_sock, rdata, sizeof(RData_MsgContent), 0)) < 0) {
-    //     printf("connection broken!waitting for reconnecting ...\n");
-    //     sleep(waitReconn); // wait for reconnecting
-    //     //
-    // }
-    // printf("rdata: %d\n", n);
+     if ((n = send(_sock, rdata, RDATAMSG_LENGTH , 0)) < 0) {
+         printf("connection broken!waitting for reconnecting ...\n");
+         sleep(waitReconn); // wait for reconnecting
+         //
+     }
+     printf("rdata: %d\n", n);
 }
 void sendAllRData(hashtable_t *h){
     int i;
@@ -83,9 +91,10 @@ void sendAllRData(hashtable_t *h){
         e = h->table[i];
         while (NULL != e){
             sendRDataMsg((RData_MsgContent *)e, g_sockfd);
+            sleep(1);
             e = (void *) *(unsigned long *) (e + h->offset);
         }
-    }
+    }   
 }
 int connectToServ()
 {
@@ -111,15 +120,16 @@ int connectToServ()
 }
 void* roamClient()
 {
-    int t = connectToServ();
-    if (t != 0)
-        g_sockfd = t;
-    else
-        return NULL;
+    // int t = connectToServ();
+    // if (t != 0)
+    //     g_sockfd = t;
+    // else
+    //     return NULL;
 
-    hashtable_t *rdtable = hashtable_create(20,sizeof(RData_MsgContent),0,0, rd_free, rd_hash, rd_compare);
+    hashtable_t *rdtable = hashtable_create(50,sizeof(RData_MsgContent),0,0, rd_free, rd_hash, rd_compare);
 
-    jsonStrParse(test_json3,rdtable);
+    getjson();
+    jsonStrParse(jsontest,rdtable); 
 
     sendAllRData(rdtable);
     //while (1) {

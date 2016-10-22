@@ -10,16 +10,30 @@ RData_MsgContent* j2s(const char* _json)
     s2j_struct_get_basic_element(struct_rdata, json_rdata, string, roamprovince);
     s2j_struct_get_basic_element(struct_rdata, json_rdata, string, region);
     s2j_struct_get_basic_element(struct_rdata, json_rdata, string, usernumber);
-    s2j_struct_get_basic_element(struct_rdata, json_rdata, string, time);
-    s2j_struct_get_basic_element(struct_rdata, json_rdata, string, action);
+    s2j_struct_get_basic_element(struct_rdata, json_rdata, int, time);
+    s2j_struct_get_basic_element(struct_rdata, json_rdata, int, action);
 
     cJSON_Delete(json_rdata);
 
+    
+
+    char _roamprovince[3];
+    char _region[7];
+    strncpy(_roamprovince,(char *)struct_rdata->roamprovince,2);
+    _roamprovince[2] = 0;
+    strncpy(_region,(char *)struct_rdata->region,6);
+    _region[6] = 0;
+
     RData_MsgContent* rdata = (RData_MsgContent *)malloc(sizeof(RData_MsgContent));
 
-    strncpy(rdata->length, "18", 2);
-    strncpy(rdata->type, "3", 1);
-    strncpy(rdata->roamprovince, (char*)struct_rdata, sizeof(RData_MsgContent_T));
+    rdata->length = 23;
+    rdata->type = 3;
+    rdata->roamprovince = (u_char )atoi(_roamprovince);
+    rdata->region = (u_short)atoi(_region);
+    strncpy(rdata->usernumber, (char*)struct_rdata->usernumber, 13);
+    rdata->time = htonl(struct_rdata->time);
+    rdata->action = struct_rdata->action;
+    rdata->next = NULL;
 
     return rdata; 
 
@@ -73,12 +87,7 @@ void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
             // got a single json string. transformat it and put into hashtable.
             rdata = j2s(singleJson);
 
-            int i;
-    for(i=0;i<sizeof(RData_MsgContent);i++)
-        printf("%d",*((char*)rdata+i));
-    printf("\n");
-    
-            if (!hashtable_search(rdtable, rdata)) {
+            if (*rdata->usernumber != 0) { // data without a usernumber will not be inserted.
                 printf("insert a record!\n");
                 hashtable_insert(rdtable, rdata);
             }
@@ -89,4 +98,5 @@ void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
         }
         cur++;
     }
+    //hashtable_trace(rdtable);
 }

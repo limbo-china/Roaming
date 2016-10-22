@@ -1,0 +1,1 @@
+{"Result":[{"RoamProvince":"34","Region":"010000","HomeCode":"0353","UserNumber":"8613835330812","Time":1477016938,"Action":0}]}
