@@ -1,12 +1,13 @@
 #include "client.h"
 
-int main(){
+int main()
+{
     pthread_t hbThread;
     pthread_t clientThread;
     int ret = 0;
 
     ret = pthread_create(&clientThread, NULL, roamClient, NULL);
-    if (ret){
+    if (ret) {
         printf("client pthread_create error:(return code %d)!", ret);
         return 0;
     }
@@ -14,8 +15,8 @@ int main(){
     sleep(3);
 
     ret = pthread_create(&hbThread, NULL, heartBeatDetect, NULL);
-    if (ret){
-        printf("hb pthread_create error:(return code %d)!", ret );
+    if (ret) {
+        printf("hb pthread_create error:(return code %d)!", ret);
         return 0;
     }
 

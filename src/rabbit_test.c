@@ -1,8 +1,8 @@
 #include "rabbit_test.h"
 #include <stdio.h>
 
-char jsontest[40000]; 
- 
+char jsontest[40000];
+
 void getjson()
 {
     FILE* f;
@@ -11,9 +11,9 @@ void getjson()
 
     int i = 0;
     char c;
-    while((c = fgetc(f))!= EOF){
+    while ((c = fgetc(f)) != EOF) {
         jsontest[i++] = c;
-	}
+    }
 
-	jsontest[i] = 0;
+    jsontest[i] = 0;
 }

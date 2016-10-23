@@ -2,18 +2,8 @@
 
 //static u_longlong htonll(u_longlong n); //unsigned long long 网络字节序转换
 
-FReq_MsgContent constructFReqMsg(u_char _prov){
-    FReq_MsgContent freq;
-
-    memset(&freq, 0, sizeof(FReq_MsgContent));
-
-    freq.msg_length = 0x03;
-    freq.msg_type  = 0x01;
-    freq.dest_prov = _prov;
-
-    return freq;
-}
-FRep_MsgContent constructFRepMsg(){
+FRep_MsgContent constructFRepMsg()
+{
     FRep_MsgContent frep;
 
     memset(&frep, 0, sizeof(FRep_MsgContent));
@@ -43,7 +33,8 @@ FRep_MsgContent constructFRepMsg(){
 
 //     return rdata;
 // }
-FData_FinMsgContent constructFDataFinMsg(){
+FData_FinMsgContent constructFDataFinMsg()
+{
     FData_FinMsgContent fdfin;
 
     memset(&fdfin, 0, sizeof(FData_FinMsgContent));
@@ -53,7 +44,8 @@ FData_FinMsgContent constructFDataFinMsg(){
 
     return fdfin;
 }
-HB_MsgContent constructHBMsg(){
+HB_MsgContent constructHBMsg()
+{
     HB_MsgContent hb;
 
     memset(&hb, 0, sizeof(HB_MsgContent));
@@ -62,15 +54,3 @@ HB_MsgContent constructHBMsg(){
     hb.msg_type = 0x05;
     return hb;
 }
-// static u_longlong htonll(u_longlong n){
-//     u_longlong temp_low, temp_high;
-
-//     temp_low  = htonl((unsigned long)n);
-//     temp_high = htonl((unsigned long)(n >> 32));
-
-//     n  &= 0;
-//     n  |= temp_low;
-//     n <<= 32;
-//     n  |= temp_high;
-//     return n;
-// }
