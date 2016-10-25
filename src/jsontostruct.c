@@ -24,11 +24,12 @@ RData_MsgContent* j2s(const char* _json)
 
     RData_MsgContent* rdata = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
 
-    rdata->length = 23;
+    rdata->length = 22;
     rdata->type = 3;
     rdata->roamprovince = (u_char)atoi(_roamprovince);
     rdata->region = htons((u_short)atoi(_region));
-    strncpy(rdata->usernumber, (char*)struct_rdata->usernumber, 13);
+    strncpy(rdata->usernumber, (char*)struct_rdata->usernumber+2, 11);
+    rdata->usernumber[11] = '0';
     rdata->time = htonl(struct_rdata->time);
     rdata->action = struct_rdata->action;
     rdata->next = NULL;
@@ -86,10 +87,11 @@ void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
             rdata = j2s(singleJson);
 
             if (*rdata->usernumber != 0) { // data without a usernumber will not be inserted.
-                //printf("insert a record!\n");
+                printf("insert a record!\n");
+
                 hashtable_insert(rdtable, rdata);
             }
-            //printf("hash count: %d\n", hashtable_count(rdtable));
+            printf("hash count: %d\n", hashtable_count(rdtable));
         }
         cur++;
     }

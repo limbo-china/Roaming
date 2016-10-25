@@ -9,7 +9,7 @@ typedef unsigned short u_short;
 typedef unsigned int u_int;
 typedef unsigned long long u_longlong;
 
-#define RDATAMSG_LENGTH 23
+#define RDATAMSG_LENGTH 22
 
 typedef struct F_REQ_MSG_CONTENT {
     u_char msg_length;
@@ -35,7 +35,7 @@ typedef struct R_DATA_MEG_CONTENT {
     u_char type;
     u_char roamprovince;
     u_short region;
-    char usernumber[13];
+    char usernumber[12];
     u_int time;
     u_char action;
 
