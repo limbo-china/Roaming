@@ -15,4 +15,6 @@
 /***************************************************************************/
 int getConfigValue(const char *conf_path, const char *conf_name, char *config_buff);
 
+#define CONFIG_PATH "./conf/roam.conf"
+
 #endif

@@ -1,4 +1,4 @@
-#include "jsontostruct.h"
+    #include "jsontostruct.h"
 #define SINGLEJSONLEN 150
 RData_MsgContent* j2s(const char* _json)
 {
@@ -87,11 +87,11 @@ void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
             rdata = j2s(singleJson);
 
             if (*rdata->usernumber != 0) { // data without a usernumber will not be inserted.
-                printf("insert a record!\n");
+                //printf("insert a record!\n");
 
                 hashtable_insert(rdtable, rdata);
             }
-            printf("hash count: %d\n", hashtable_count(rdtable));
+            //printf("hash count: %d\n", hashtable_count(rdtable));
         }
         cur++;
     }

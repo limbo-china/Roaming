@@ -8,6 +8,6 @@
 #include <stdio.h>
 
 RData_MsgContent* j2s(const char* _json); // get json and transformat it to struct.
-void jsonStrParse(const char* jsonstr, hashtable_t* rdtable);
+void jsonStrParse(const char* jsonstr, hashtable_t* rdtable); //transformat json and put into hashtable
 
 #endif
