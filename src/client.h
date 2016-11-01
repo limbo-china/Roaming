@@ -6,12 +6,12 @@
 #include "hashtable.h"
 #include "datahash.h"
 
-//#include "rabbit_test.h"
+#include "rabbit_test.h"
 #include "getrabbit.h"
 
 extern int g_sockfd;
 
-void* heartBeatDetect();
+void* requestDetect();
 void* roamClient();
 void alarmHandler();
 void sendHBMsg(int _sock);

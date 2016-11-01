@@ -2,7 +2,7 @@
 
 int main()
 {
-    pthread_t hbThread;
+    pthread_t reqThread;
     pthread_t clientThread;
     int ret = 0;
 
@@ -14,14 +14,14 @@ int main()
 
     sleep(3);
 
-    ret = pthread_create(&hbThread, NULL, heartBeatDetect, NULL);
+    ret = pthread_create(&reqThread, NULL, requestDetect, NULL);
     if (ret) {
-        printf("hb pthread_create error:(return code %d)!", ret);
+        printf("request pthread_create error:(return code %d)!", ret);
         return 0;
     }
 
     pthread_join(clientThread, NULL);
 
-    pthread_join(hbThread, NULL);
+    pthread_join(reqThread, NULL);
     return 0;
 }

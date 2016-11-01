@@ -64,17 +64,18 @@ RData_MsgContent* j2s(const char* _json)
     //  t_action [j] = *((u_char *)struct_rdata+i);
     // t_action[j]=0;
 }
-void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
+void jsonStrParse(const char* jsonstr, int len,  hashtable_t* rdtable)
 {
     int cur = 0, scur;
     char singleJson[SINGLEJSONLEN] = { 0 };
 
     RData_MsgContent* rdata;
 
-    while (jsonstr[cur] != '[')
+    while (jsonstr[cur] != '{')
         cur++;
-    while (jsonstr[cur] != ']') {
-        if (jsonstr[cur] == '{') {
+    printf("1\n");
+    while (cur <= len - 115) {
+        if (jsonstr[cur] == '{' && jsonstr[cur+3] == 'o') {
             scur = 0;
             while (jsonstr[cur] != '}') {
                 singleJson[scur++] = jsonstr[cur];
@@ -82,16 +83,15 @@ void jsonStrParse(const char* jsonstr, hashtable_t* rdtable)
             }
             singleJson[scur++] = jsonstr[cur];
             singleJson[scur] = 0;
-
             // got a single json string. transformat it and put into hashtable.
             rdata = j2s(singleJson);
 
             if (*rdata->usernumber != 0) { // data without a usernumber will not be inserted.
-                //printf("insert a record!\n");
+                printf("insert a record!\n");
 
                 hashtable_insert(rdtable, rdata);
-            }
-            //printf("hash count: %d\n", hashtable_count(rdtable));
+            } 
+            printf("hash count: %d\n", hashtable_count(rdtable));
         }
         cur++;
     }

@@ -1,9 +1,9 @@
 #include "rabbit_test.h"
 #include <stdio.h>
 
-char jsontest[40000];
+char jsontest[5000];
 
-void getjson()
+int getjson()
 {
     FILE* f;
     if ((f = fopen(TESTFILE_PATH, "r+")) == NULL)
@@ -16,4 +16,5 @@ void getjson()
     }
 
     jsontest[i] = 0;
+    return i ;
 }

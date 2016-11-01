@@ -136,8 +136,8 @@ void getFromRabbit(hashtable_t* rdtable)
                     if (*((char*)frame.payload.body_fragment.bytes + i) == '.')
                         sleep_seconds++;
                 }
-                jsonStrParse((char*)frame.payload.body_fragment.bytes, rdtable);
-                fprintf(f,"\n------------------------------------------\n");
+                jsonStrParse((char*)frame.payload.body_fragment.bytes, frame.payload.body_fragment.len, rdtable);
+                //fprintf(f,"\n------------------------------------------\n");
                 //fprintf(f,"\n");
             }
 
@@ -151,10 +151,10 @@ void getFromRabbit(hashtable_t* rdtable)
 
             amqp_basic_ack(conn, channelid, d->delivery_tag, 0);
 
-            if (hashtable_count(rdtable) > 300) {
+            //if (hashtable_count(rdtable) > 5000) {
                 
-                break;
-            }
+            //    break;
+            //}
         }
     }
 
