@@ -73,7 +73,7 @@ void jsonStrParse(const char* jsonstr, int len,  hashtable_t* rdtable)
 
     while (jsonstr[cur] != '{')
         cur++;
-    printf("1\n");
+    //printf("1\n");
     while (cur <= len - 115) {
         if (jsonstr[cur] == '{' && jsonstr[cur+3] == 'o') {
             scur = 0;
