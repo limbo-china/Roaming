@@ -86,12 +86,30 @@ void jsonStrParse(const char* jsonstr, int len,  hashtable_t* rdtable)
             // got a single json string. transformat it and put into hashtable.
             rdata = j2s(singleJson);
 
-            if (*rdata->usernumber != 0) { // data without a usernumber will not be inserted.
-                printf("insert a record!\n");
+            pthread_mutex_lock(&send_mutex);
+            if (*rdata->usernumber != 0) { // data without a usernumber will not be considered.
 
-                hashtable_insert(rdtable, rdata);
+                if(hashtable_search(rdtable,rdata) == NULL){
+                    printf("insert a record!\n");
+                    hashtable_insert(rdtable, rdata);
+                    sendRDataMsg(rdata, g_sockfd);
+                }
+                else{
+                    if(rdata->action == 0){
+                        hashtable_remove(rdtable,rdata);         
+                    }
+                    else{
+                        ////
+                        //...
+                        hashtable_remove(rdtable,rdata);  
+                        hashtable_insert(rdtable,rdata);
+                    }
+                    sendRDataMsg(rdata, g_sockfd);
+                }
             } 
-            printf("hash count: %d\n", hashtable_count(rdtable));
+            //printf("hash count: %d\n", hashtable_count(rdtable));
+            pthread_mutex_unlock(&send_mutex);
+            //sleep(1);
         }
         cur++;
     }

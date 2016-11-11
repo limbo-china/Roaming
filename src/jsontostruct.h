@@ -4,6 +4,7 @@
 #include "msgstruct.h"
 #include "s2j.h"
 #include "hashtable.h"
+#include "client.h"
 #include <stdint.h>
 #include <stdio.h>
 

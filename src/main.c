@@ -12,7 +12,7 @@ int main()
         return 0;
     }
 
-    sleep(3);
+     sleep(1);
 
     ret = pthread_create(&reqThread, NULL, requestDetect, NULL);
     if (ret) {

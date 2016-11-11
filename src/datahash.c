@@ -2,7 +2,7 @@
 #include "msgstruct.h"
 #include "datahash.h"
 
-const int usrNumLen = 13;
+const int usrNumLen = 12;
 
 unsigned int rd_time33(char* data)
 {

@@ -3,11 +3,12 @@
 const int tr2KeepAlive = 3;
 const int waitReconn = 5;
 int g_sockfd = 0;
+pthread_mutex_t send_mutex = PTHREAD_MUTEX_INITIALIZER;
 hashtable_t* rdtable;
 
 int datanum = 0;
 
-void* requestDetect() 
+void* requestDetect()
 {
     int maxfdp1;
     fd_set rset, wset; // read set and write set
@@ -18,24 +19,24 @@ void* requestDetect()
 
     for (;;) {
 
-        FD_SET(g_sockfd,&rset);
-        FD_SET(g_sockfd,&wset);
-        maxfdp1=g_sockfd+1;
-        select(maxfdp1,&rset,&wset,NULL,NULL);
+        FD_SET(g_sockfd, &rset);
+        //FD_SET(g_sockfd, &wset);
+        maxfdp1 = g_sockfd + 1;
+        select(maxfdp1, &rset, NULL, NULL, NULL);
 
-        if(FD_ISSET(g_sockfd,&rset)){
+        if (FD_ISSET(g_sockfd, &rset)) {
             FReq_MsgContent* freqmsg = (FReq_MsgContent*)malloc(sizeof(FReq_MsgContent));
             if ((n = recv(g_sockfd, freqmsg, sizeof(FReq_MsgContent), 0)) == 3) {
-            if (freqmsg->msg_length == 3 && freqmsg->msg_type == 1) {
-                printf("received request message\n");
-                sendFRepMsg(g_sockfd);
-                sendAllRData(rdtable);
-                sendFDataFinMsg(g_sockfd);
-            }
+                if (freqmsg->msg_length == 3 && freqmsg->msg_type == 1) {
+                    printf("received request message\n");
+                    //sendFRepMsg(g_sockfd);
+                    pthread_mutex_lock(&send_mutex);
+                    sendAllRData(rdtable);
+                    pthread_mutex_unlock(&send_mutex);
+                    //sendFDataFinMsg(g_sockfd);
+                }
             }
         }
-        
-        
     }
     return NULL;
 }
@@ -47,7 +48,7 @@ void alarmHandler()
         return;
     }
 
-    //sendHBMsg(g_sockfd); //发送心跳包进行检测
+    sendHBMsg(g_sockfd); //发送心跳包进行检测
 
     signal(SIGALRM, alarmHandler); //重新定时
     alarm(tr2KeepAlive);
@@ -64,7 +65,7 @@ void sendHBMsg(int _sock)
 
         close(g_sockfd);
         int t = connectToServ();
-        if (t != 0)
+        //if (t != 0)
             g_sockfd = t;
 
         printf("reconnect succeed.\n");
@@ -119,7 +120,7 @@ void sendRDataMsg(RData_MsgContent* rdata, int _sock)
     strncpy(_datamsg + 5, rdata->usernumber, 12);
     strncpy(_datamsg + 17, (char*)&rdata->time, 4);
     _datamsg[21] = rdata->action;
-    n=0;
+    n = 0;
     if ((n = send(_sock, _datamsg, RDATAMSG_LENGTH, 0)) < 0) {
         printf("connection broken!waitting for reconnecting ...\n");
         sleep(waitReconn); // wait for reconnecting
@@ -135,18 +136,21 @@ void sendRDataMsg(RData_MsgContent* rdata, int _sock)
         // sleep(1);
         // printf("reconnect succeed.\n");
     }
-    printf("sock: %d\n",g_sockfd );
+    //printf("sock: %d\n", g_sockfd);
     printf("rdata: %d\n", n);
 }
 void sendAllRData(hashtable_t* h)
 {
+    printf("\n\n\n send full data !!\n\n\n");
+
     int i;
     void* e;
     for (i = 0; i < h->tablelength; i++) {
         e = h->table[i];
         while (NULL != e) {
+            printf("sending full data ....\n");
             sendRDataMsg((RData_MsgContent*)e, g_sockfd);
-            usleep(20000);
+            //sleep(2);
             e = (void*)*(unsigned long*)(e + h->offset);
         }
     }
@@ -163,34 +167,45 @@ int connectToServ()
         return 0;
     }
 
-    int sockfd = Socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd;
+    int isConn = 0;
+    while (isConn == 0) {
 
-    int bufsize = 1024;
-    socklen_t len= sizeof(bufsize);
-    setsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&bufsize,len);
+        sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 
-    //printf("%d\n",bufsize );
+        //int bufsize = 1024;
+        //socklen_t len= sizeof(bufsize);
+        //setsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&bufsize,len);
 
-    getsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&bufsize,&len);
+        //printf("%d\n",bufsize );
 
-    printf("%d\n",bufsize );
+        //getsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&bufsize,&len);
 
+        //printf("%d\n",bufsize );
 
-    servaddr = initSockAddr(server_ip, server_port);
+        servaddr = initSockAddr(server_ip, server_port); //move it ???
 
-    signal(SIGPIPE,SIG_IGN);
+        signal(SIGPIPE, SIG_IGN); /// move it to the beginning of roamClient() ???
 
-    printf("connecting to server ...\n");
-    Connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
-    printf("connect succeed.\n");
+        printf("connecting to server ...\n");
+        if(connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
+            printf("connect to server failed. trying to reconnect... \n");
+            close(sockfd);
+            sleep(waitReconn);
+        }
+        else{
+            isConn = 1;
+            printf("connect succeed.\n");
+        }
+    }
 
     return sockfd;
 }
 void* roamClient()
 {
-    // int t = connectToServ();
+     int t = connectToServ();
     // if (t != 0)
-    //     g_sockfd = t;
+         g_sockfd = t;
     // else
     //     return NULL;
 
@@ -201,12 +216,11 @@ void* roamClient()
     //int len = getjson();
     getFromRabbit(rdtable);
 
-    
     //call select to check if g_sockfd is readable or writable.
 
     //jsonStrParse(jsontest, len , rdtable);
     //printf("end!\n");
-    
+
     //while (1) {
     //sleep(1);
     //sendRDataMsg(g_sockfd);

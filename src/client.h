@@ -10,7 +10,7 @@
 #include "getrabbit.h"
 
 extern int g_sockfd;
-
+extern pthread_mutex_t send_mutex;
 void* requestDetect();
 void* roamClient();
 void alarmHandler();
