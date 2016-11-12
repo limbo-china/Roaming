@@ -19,6 +19,7 @@ void* requestDetect()
 
     for (;;) {
 
+    if(g_sockfd != 0){
         FD_SET(g_sockfd, &rset);
         //FD_SET(g_sockfd, &wset);
         maxfdp1 = g_sockfd + 1;
@@ -31,12 +32,14 @@ void* requestDetect()
                     printf("received request message\n");
                     //sendFRepMsg(g_sockfd);
                     pthread_mutex_lock(&send_mutex);
-                    sendAllRData(rdtable);
+                    sendFullRData(rdtable, freqmsg->dest_prov);
                     pthread_mutex_unlock(&send_mutex);
                     //sendFDataFinMsg(g_sockfd);
                 }
             }
+            free(freqmsg);
         }
+    }
     }
     return NULL;
 }
@@ -139,7 +142,7 @@ void sendRDataMsg(RData_MsgContent* rdata, int _sock)
     //printf("sock: %d\n", g_sockfd);
     printf("rdata: %d\n", n);
 }
-void sendAllRData(hashtable_t* h)
+void sendFullRData(hashtable_t* h, u_char prov)
 {
     printf("\n\n\n send full data !!\n\n\n");
 
@@ -149,7 +152,9 @@ void sendAllRData(hashtable_t* h)
         e = h->table[i];
         while (NULL != e) {
             printf("sending full data ....\n");
-            sendRDataMsg((RData_MsgContent*)e, g_sockfd);
+            RData_MsgContent* rdptr = (RData_MsgContent*)e;
+            if(prov == 0 || prov == rdptr->roamprovince)
+                sendRDataMsg(rdptr, g_sockfd);
             //sleep(2);
             e = (void*)*(unsigned long*)(e + h->offset);
         }
@@ -213,12 +218,12 @@ void* roamClient()
 
     rdtable = hashtable_create(1000, sizeof(RData_MsgContent), 0, 0, rd_free, rd_hash, rd_compare);
 
-    //int len = getjson();
-    getFromRabbit(rdtable);
+    int len = getjson();
+    //getFromRabbit(rdtable);
 
     //call select to check if g_sockfd is readable or writable.
 
-    //jsonStrParse(jsontest, len , rdtable);
+    jsonStrParse(jsontest, len , rdtable);
     //printf("end!\n");
 
     //while (1) {

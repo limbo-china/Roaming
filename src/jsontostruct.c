@@ -89,27 +89,52 @@ void jsonStrParse(const char* jsonstr, int len,  hashtable_t* rdtable)
             pthread_mutex_lock(&send_mutex);
             if (*rdata->usernumber != 0) { // data without a usernumber will not be considered.
 
-                if(hashtable_search(rdtable,rdata) == NULL){
-                    printf("insert a record!\n");
-                    hashtable_insert(rdtable, rdata);
+                // if(hashtable_search(rdtable,rdata) == NULL){
+                //     printf("insert a record!\n");
+                //     hashtable_insert(rdtable, rdata);
+                //     sendRDataMsg(rdata, g_sockfd);
+                // }
+                // else{
+                //     if(rdata->action == 0){
+                //         hashtable_remove(rdtable,rdata);         
+                //     }
+                //     else{
+                //         ////
+                //         //...
+                //         hashtable_remove(rdtable,rdata);  
+                //         hashtable_insert(rdtable,rdata);
+                //     }
+                //     sendRDataMsg(rdata, g_sockfd);
+                // }
+                if(rdata->action == 0){
+                    if(hashtable_search(rdtable,rdata) != NULL ){
+                        printf("remove from table when leave.\n");
+                        hashtable_remove(rdtable,rdata);
+                    }
+                    printf("send leave msg.\n");
                     sendRDataMsg(rdata, g_sockfd);
                 }
                 else{
-                    if(rdata->action == 0){
-                        hashtable_remove(rdtable,rdata);         
-                    }
-                    else{
-                        ////
-                        //...
-                        hashtable_remove(rdtable,rdata);  
+                    RData_MsgContent* rdptr = (RData_MsgContent*)hashtable_search(rdtable,rdata);
+                    if(rdptr == NULL){
+                        printf("insert into table when enter.\n");
                         hashtable_insert(rdtable,rdata);
                     }
-                    sendRDataMsg(rdata, g_sockfd);
+                    else{
+                        printf("remove origin and send leave msg when enter.\n");
+                        rdptr->action = 0;
+                        sendRDataMsg(rdptr, g_sockfd);
+                        hashtable_remove(rdtable,rdata);
+                        printf("insert into table when enter.\n");
+                        hashtable_insert(rdtable,rdata);
+                    }
+                    printf("send enter msg.\n");
+                    sendRDataMsg(rdata,g_sockfd);
                 }
             } 
-            //printf("hash count: %d\n", hashtable_count(rdtable));
+            printf("hash count: %d\n", hashtable_count(rdtable));
             pthread_mutex_unlock(&send_mutex);
-            //sleep(1);
+            sleep(1);
         }
         cur++;
     }

@@ -18,6 +18,6 @@ void sendHBMsg(int _sock);
 void sendFRepMsg(int _sock);
 void sendRDataMsg(RData_MsgContent* rdata,int _sock);
 void sendFDataFinMsg(int _sock);
-void sendAllRData(hashtable_t *rdtable);
+void sendFullRData(hashtable_t *rdtable, u_char prov);
 int connectToServ();  // connect to the server and return the socket descriptor
 #endif
