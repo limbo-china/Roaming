@@ -2,9 +2,11 @@
 
 const int tr2KeepAlive = 3;
 const int waitReconn = 5;
+const int dumpWriteTime = 10;
+
 int g_sockfd = 0;
 pthread_mutex_t send_mutex = PTHREAD_MUTEX_INITIALIZER;
-hashtable_t* rdtable;
+hashtable_t* rdtable = NULL;
 
 int datanum = 0;
 
@@ -108,7 +110,8 @@ void sendRDataMsg(RData_MsgContent* rdata, int _sock)
     printf("%u", rdata->length);
     printf("%u", rdata->type);
     printf("%u", rdata->roamprovince);
-    printf("%u", ntohs(rdata->region));
+    printf("%u",  *((u_char *)&rdata->region));
+    printf("%u",  *((u_char *)&rdata->region+1));
     for (i = 0; i < 12; i++)
         printf("%c", *((u_char*)rdata->usernumber + i));
     printf("%u", ntohl(rdata->time));
@@ -221,37 +224,43 @@ void* roamClient()
     int len = getjson();
     //getFromRabbit(rdtable);
 
-    //call select to check if g_sockfd is readable or writable.
-
     jsonStrParse(jsontest, len , rdtable);
-    //printf("end!\n");
 
-    //while (1) {
-    //sleep(1);
-    //sendRDataMsg(g_sockfd);
-    // RData_MsgContent* rdata1 = j2s(test_json1);
-    // RData_MsgContent* rdata2 = j2s(test_json2);
-
-    // int i;
-    // for(i=0;i<sizeof(RData_MsgContent);i++)
-    //     printf("%d",*((char *)rdata1+i) );
-    // printf("\n");
-    // if(!hashtable_search(rdtable,rdata1)){
-    //     printf("insert a record!\n");
-    //     hashtable_insert(rdtable,rdata1);
-
-    // }
-    // printf("hash count: %d\n",hashtable_count(rdtable));
-
-    // if(!hashtable_search(rdtable,rdata2)){
-    //     printf("insert a record\n");
-    //     hashtable_insert(rdtable,rdata2);
-
-    // }
-    // printf("hash count: %d\n",hashtable_count(rdtable));
-    // hashtable_trace(rdtable);
-    //}
     return NULL;
+}
+
+void *hashTableDump(){
+    FILE* f;
+    f = fopen(DUMP_FILE_PATH, "w+");
+
+    if (f == NULL) {
+        printf("OPEN DUMP FALID:%s\n", DUMP_FILE_PATH);
+        return 0;
+    }
+
+    for(; ;){
+        sleep(dumpWriteTime);
+        fseek(f, 0, SEEK_SET);
+        if(rdtable != NULL)
+            dumpWriteUpdate(f);
+    }
+}
+
+void dumpWriteUpdate(FILE *f){
+    printf("\n\n\n update the dumpfile!!!\n\n\n");
+
+    int i;
+    void* e;
+    for (i = 0; i < rdtable->tablelength; i++) {
+        e = rdtable->table[i];
+        while (NULL != e) {
+            RData_MsgContent* rdptr = (RData_MsgContent*)e;
+            fwrite(rdptr, RDATAMSG_LENGTH, 1, f);
+            fputc('\n',f);
+            e = (void*)*(unsigned long*)(e + rdtable->offset);
+        }
+    }
+    printf("dumpfile updated. \n");
 }
 
 

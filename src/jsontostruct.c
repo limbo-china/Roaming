@@ -16,18 +16,22 @@ RData_MsgContent* j2s(const char* _json)
     cJSON_Delete(json_rdata);
 
     char _roamprovince[3];
-    char _region[7];
+    char _region1[3];
+    char _region2[3];
     strncpy(_roamprovince, (char*)struct_rdata->roamprovince, 2);
     _roamprovince[2] = 0;
-    strncpy(_region, (char*)struct_rdata->region, 6);
-    _region[6] = 0;
+    strncpy(_region1, (char*)struct_rdata->region, 2);
+    _region1[2] = 0;
+    strncpy(_region2, (char*)struct_rdata->region+2,2);
+    _region2[2] = 0;
 
     RData_MsgContent* rdata = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
 
     rdata->length = 22;
     rdata->type = 3;
     rdata->roamprovince = (u_char)atoi(_roamprovince);
-    rdata->region = htons((u_short)atoi(_region));
+    *((u_char *)&rdata->region) = (u_char)atoi(_region1);
+    *((u_char *)&rdata->region+1) = (u_char)atoi(_region2);
     strncpy(rdata->usernumber, (char*)struct_rdata->usernumber+2, 11);
     rdata->usernumber[11] = '0';
     rdata->time = htonl(struct_rdata->time);
