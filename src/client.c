@@ -255,6 +255,7 @@ void dumpWriteUpdate(FILE *f){
         e = rdtable->table[i];
         while (NULL != e) {
             RData_MsgContent* rdptr = (RData_MsgContent*)e;
+            printf("write to file.\n");
             fwrite(rdptr, RDATAMSG_LENGTH, 1, f);
             fputc('\n',f);
             e = (void*)*(unsigned long*)(e + rdtable->offset);
