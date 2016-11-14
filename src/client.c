@@ -32,11 +32,11 @@ void* requestDetect()
             if ((n = recv(g_sockfd, freqmsg, sizeof(FReq_MsgContent), 0)) == 3) {
                 if (freqmsg->msg_length == 3 && freqmsg->msg_type == 1) {
                     printf("received request message\n");
-                    //sendFRepMsg(g_sockfd);
+                    sendFRepMsg(g_sockfd);
                     pthread_mutex_lock(&send_mutex);
                     sendFullRData(rdtable, freqmsg->dest_prov);
                     pthread_mutex_unlock(&send_mutex);
-                    //sendFDataFinMsg(g_sockfd);
+                    sendFDataFinMsg(g_sockfd);
                 }
             }
             free(freqmsg);
@@ -221,10 +221,10 @@ void* roamClient()
 
     rdtable = hashtable_create(1000, sizeof(RData_MsgContent), 0, 0, rd_free, rd_hash, rd_compare);
 
-    int len = getjson();
-    //getFromRabbit(rdtable);
+    //int len = getjson();
+    getFromRabbit(rdtable);
 
-    jsonStrParse(jsontest, len , rdtable);
+    //jsonStrParse(jsontest, len , rdtable);
 
     return NULL;
 }

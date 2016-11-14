@@ -1,23 +1,29 @@
+
+####
 1.
 reconnect timeout.  connect per 8 seconds.
 
+####
 2.
 hash table dump file.
 
+####
 3.
 parse roamdata and send increment data.
 ( enter / leave )
 (sync with the full data sender, better to use mutex.)
 
-
+####
 4.
 the city fragment in roam data.
 
 5.
 read configurations from rabbit.conf may make error. ???? 
 
-	
+####
 6.
+send reply msg and fin msg. (and update server_test code to cooperate with it)
+
 test heartbeat / increment data / full data / reconnect / dump file ,
 using test_server.
 

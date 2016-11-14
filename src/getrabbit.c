@@ -2,58 +2,53 @@
 
 void getFromRabbit(hashtable_t* rdtable)
 {
-    // char hostname[20];
-    // int port;
-    // char rabbitusername[20];
-    // char rabbituserpasswd[20];
-    // char exchangename[20];
-    // char routingkey[20];
-    // char exchangetype[20];
+    char hostname[20];
+    int port;
+    char rabbitusername[20];
+    char rabbituserpasswd[20];
+    char exchangename[20];
+    char routingkey[20];
+    char exchangetype[20];
 
     // if (argc < 5) {
     //  fprintf(stderr, "Usage: receive_logs_direct host port exchange routingkeys...\n");
     //  return 1;
     // }
 
-    FILE *f;
-    if((f=fopen("jsondata.txt","w+"))==NULL)
-        printf("cannot open file.\n");
+    if(!getRabbitCfg(hostname,&port,rabbitusername,rabbituserpasswd,
+        exchangename,routingkey,exchangetype)){
+        printf("get rabbit configuration failed.\n");
+        return ;
+    }
 
-    // if(!getRabbitCfg(hostname,&port,rabbitusername,rabbituserpasswd,
-    //     exchangename,routingkey,exchangetype)){
-    //     printf("get rabbit configuration failed.\n");
-    //     return ;
-    // }
-    const char *hostname ="10.213.73.8";
-    int port = 5672;
-    const char *rabbitusername = "msg_usr";
-    const char *rabbituserpasswd = "msg_passwd";
-    const char *exchangename = "roamExChange";
-    const char *routingkey = "roamKey";
-    const char *exchangetype ="direct";
-    // puts(hostname);
-    // printf("%d\n",port );
-    // puts(rabbitusername);
-    // puts(rabbituserpasswd);
-    // puts(exchangename);
-    // puts(routingkey);
-    // puts(exchangetype);
-    // hostname = "10.213.73.8";
-    // port = 5672;
-    // exchangename = "roamExChange";
+    //remove the CR at the end.
+    hostname[strlen(hostname)-1]=0;
+    rabbitusername[strlen(rabbitusername)-1]=0;
+    rabbituserpasswd[strlen(rabbituserpasswd)-1]=0;
+    exchangename[strlen(exchangename)-1]=0;
+    routingkey[strlen(routingkey)-1]=0;
+    exchangetype[strlen(exchangetype)-1]=0;
+
+    // const char *hostname ="10.213.73.8";
+    // int port = 5672;
+    // const char *rabbitusername = "msg_usr";
+    // const char *rabbituserpasswd = "msg_passwd";
+    // const char *exchangename = "roamExChange";
+    // const char *routingkey = "roamKey";
+    // const char *exchangetype ="direct";
 
     int sockfd;
     int channelid = 1;
     amqp_connection_state_t conn;
     conn = amqp_new_connection();
 
-    die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
+    die_on_error(sockfd = amqp_open_socket((const char *)hostname, port), "Opening socket");
     amqp_set_sockfd(conn, sockfd);
-    die_on_amqp_error(amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, rabbitusername, rabbituserpasswd), "Logging in");
+    die_on_amqp_error(amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, (const char *)rabbitusername, (const char *)rabbituserpasswd), "Logging in");
     amqp_channel_open(conn, channelid);
     die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
 
-    amqp_exchange_declare(conn, channelid, amqp_cstring_bytes(exchangename), amqp_cstring_bytes(exchangetype), 0, 0,
+    amqp_exchange_declare(conn, channelid, amqp_cstring_bytes((const char *)exchangename), amqp_cstring_bytes((const char *)exchangetype), 0, 0,
         amqp_empty_table);
     die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
 
@@ -63,8 +58,8 @@ void getFromRabbit(hashtable_t* rdtable)
     //for(i = 4;i < argc;i++)
     //{
     //routingkey = "roamKey";
-    amqp_queue_bind(conn, channelid, amqp_bytes_malloc_dup(r->queue), amqp_cstring_bytes(exchangename),
-        amqp_cstring_bytes(routingkey), amqp_empty_table);
+    amqp_queue_bind(conn, channelid, amqp_bytes_malloc_dup(r->queue), amqp_cstring_bytes((const char *)exchangename),
+        amqp_cstring_bytes((const char *)routingkey), amqp_empty_table);
     //}
 
     amqp_basic_qos(conn, channelid, 0, 1, 0);
@@ -132,7 +127,7 @@ void getFromRabbit(hashtable_t* rdtable)
 
                 int i;
                 for (i = 0; i < frame.payload.body_fragment.len; i++) {
-                    fprintf(f,"%c",*((char*)frame.payload.body_fragment.bytes+i));
+                    //fprintf(f,"%c",*((char*)frame.payload.body_fragment.bytes+i));
                     if (*((char*)frame.payload.body_fragment.bytes + i) == '.')
                         sleep_seconds++;
                 }
