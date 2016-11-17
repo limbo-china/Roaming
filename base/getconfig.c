@@ -1,23 +1,23 @@
 /**************************************************************************/
 
-/* ä»Žé…ç½®æ–‡ä»¶ä¸­è¯»å–å‚æ•°é…ç½®ä¿¡æ¯                                           */
-/* é…ç½®æ–‡ä»¶è§„åˆ™ï¼š                                                         */
-/*              æ¯è¡Œä»…ä¸€ä¸ªå‚æ•°å€¼                                          */
-/*              è¡Œé¦–å­—ç¬¦ä¸º # å·çš„è¡Œä¸ºæ³¨é‡Šè¡Œ                               */
-/*              å¦‚æžœä¸€è¡Œä¸­ä¸åŒ…å« = å· åˆ™é»˜è®¤è¯¥è¡Œä¸ºæ³¨é‡Šè¡Œ                  */
-/*              å‚æ•°åå­—ä¸Žå‚æ•°å€¼ç”¨ = å·è¿žæŽ¥                               */
-/*              å‚æ•°åç§°ä¸­ä¸èƒ½åŒ…å« = å·                                   */
-/*               = å·å‰åŽä¸èƒ½æœ‰ç©ºæ ¼                                       */
-/*              æ¯è¡Œæœ€å¤§å­—ç¬¦æ•°ä¸º LINE_MAX_LENGTH                          */
-/*              å‚æ•°åæœ€å¤§å­—ç¬¦æ•°ä¸º NAME_MAX_LENGTH,è¶…é•¿å°†ä¸¢å¼ƒè¯¥å‚æ•°       */
-/*              å‚æ•°å€¼æœ€å¤§å­—ç¬¦æ•°ä¸º VALUE_MAX_LENGTH,è¶…é•¿å°†æˆªæ–­            */
+/* ´ÓÅäÖÃÎÄ¼þÖÐ¶ÁÈ¡²ÎÊýÅäÖÃÐÅÏ¢                                           */
+/* ÅäÖÃÎÄ¼þ¹æÔò£º                                                         */
+/*              Ã¿ÐÐ½öÒ»¸ö²ÎÊýÖµ                                          */
+/*              ÐÐÊ××Ö·ûÎª # ºÅµÄÐÐÎª×¢ÊÍÐÐ                               */
+/*              Èç¹ûÒ»ÐÐÖÐ²»°üº¬ = ºÅ ÔòÄ¬ÈÏ¸ÃÐÐÎª×¢ÊÍÐÐ                  */
+/*              ²ÎÊýÃû×ÖÓë²ÎÊýÖµÓÃ = ºÅÁ¬½Ó                               */
+/*              ²ÎÊýÃû³ÆÖÐ²»ÄÜ°üº¬ = ºÅ                                   */
+/*               = ºÅÇ°ºó²»ÄÜÓÐ¿Õ¸ñ                                       */
+/*              Ã¿ÐÐ×î´ó×Ö·ûÊýÎª LINE_MAX_LENGTH                          */
+/*              ²ÎÊýÃû×î´ó×Ö·ûÊýÎª NAME_MAX_LENGTH,³¬³¤½«¶ªÆú¸Ã²ÎÊý       */
+/*              ²ÎÊýÖµ×î´ó×Ö·ûÊýÎª VALUE_MAX_LENGTH,³¬³¤½«½Ø¶Ï            */
 /**************************************************************************/
 #include "getconfig.h"
 
 /***************************************************************************/
-/* ä»Žé…ç½®æ–‡ä»¶ä¸­è¯»å–å•ç‹¬ä¸€ä¸ªå‚æ•°å¯¹åº”çš„å€¼                                    */
-/* å‚æ•°ï¼š1,é…ç½®æ–‡ä»¶è·¯å¾„; 2,åŒ¹é…åç§°; 3,è¾“å‡ºå­˜å‚¨ç©ºé—´                        */
-/* è¿”å›žï¼š0,æœªæ‰¾åˆ°; 1,æ‰¾åˆ°ç¬¦åˆåç§°çš„å€¼                                      */
+/* ´ÓÅäÖÃÎÄ¼þÖÐ¶ÁÈ¡µ¥¶ÀÒ»¸ö²ÎÊý¶ÔÓ¦µÄÖµ                                    */
+/* ²ÎÊý£º1,ÅäÖÃÎÄ¼þÂ·¾¶; 2,Æ¥ÅäÃû³Æ; 3,Êä³ö´æ´¢¿Õ¼ä                        */
+/* ·µ»Ø£º0,Î´ÕÒµ½; 1,ÕÒµ½·ûºÏÃû³ÆµÄÖµ                                      */
 /***************************************************************************/
 int getConfigValue(const char *conf_path, const char *conf_name, char *config_buff){
     char config_linebuf[LINE_MAX_LENGTH];
@@ -35,11 +35,11 @@ int getConfigValue(const char *conf_path, const char *conf_name, char *config_bu
 
     fseek(f, 0, SEEK_SET);
     while (fgets(config_linebuf, LINE_MAX_LENGTH, f) != NULL){
-        if (strlen(config_linebuf) < 4){ //åŽ»é™¤ç©ºè¡Œ "=\r\n"
+        if (strlen(config_linebuf) < 4){ //È¥³ý¿ÕÐÐ "=\r\n"
             continue;
         }
 
-        if (config_linebuf[0] == '#'){//åŽ»é™¤æ³¨é‡Šè¡Œ "#"
+        if (config_linebuf[0] == '#'){//È¥³ý×¢ÊÍÐÐ "#"
             continue;
         }
 
@@ -49,7 +49,7 @@ int getConfigValue(const char *conf_path, const char *conf_name, char *config_bu
 
         memset(line_name, 0, sizeof(line_name));
         leave_line = strstr(config_linebuf, config_sign);
-        if (leave_line == NULL){//åŽ»é™¤æ— "="çš„æƒ…å†µ
+        if (leave_line == NULL){//È¥³ýÎÞ"="µÄÇé¿ö
             continue;
         }
 
