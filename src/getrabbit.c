@@ -1,6 +1,6 @@
 #include "getrabbit.h"
 
-void getFromRabbit(hashtable_t* rdtable)
+void getFromRabbit()
 {
     char hostname[20];
     int port;
@@ -17,7 +17,7 @@ void getFromRabbit(hashtable_t* rdtable)
 
     if(!getRabbitCfg(hostname,&port,rabbitusername,rabbituserpasswd,
         exchangename,routingkey,exchangetype)){
-        printf("get rabbit configuration failed.\n");
+        log_error(g_log, "Get rabbit configuration failed.\n");
         return ;
     }
 
@@ -131,7 +131,7 @@ void getFromRabbit(hashtable_t* rdtable)
                     if (*((char*)frame.payload.body_fragment.bytes + i) == '.')
                         sleep_seconds++;
                 }
-                jsonStrParse((char*)frame.payload.body_fragment.bytes, frame.payload.body_fragment.len, rdtable);
+                jsonStrParse((char*)frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
                 //fprintf(f,"\n------------------------------------------\n");
                 //fprintf(f,"\n");
             }
@@ -146,10 +146,6 @@ void getFromRabbit(hashtable_t* rdtable)
 
             amqp_basic_ack(conn, channelid, d->delivery_tag, 0);
 
-            //if (hashtable_count(rdtable) > 5000) {
-                
-            //    break;
-            //}
         }
     }
 
@@ -162,39 +158,39 @@ int getRabbitCfg(char *_host, int *_port, char *_user, char *_pwd,
     char *_exchgName, char* _key, char *_type){
 
     if (!getConfigValue(CONFIG_PATH, "rabbitHost", _host)){
-        printf("get rabbit host failed.\n");
+        log_error(g_log, "Get rabbit host failed.\n");
         return 0;
     }
 
     char _p[10];
     if (!getConfigValue(CONFIG_PATH, "rabbitPort", _p)){
-        printf("get rabbit port failed.\n");
+        log_error(g_log, "Get rabbit port failed.\n");
         return 0;
     }
     *_port = atoi(_p);
 
     if (!getConfigValue(CONFIG_PATH, "rabbitUserName", _user)){
-        printf("get rabbit username failed.\n");
+        log_error(g_log, "Get rabbit username failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "rabbitUserPasswd", _pwd)){
-        printf("get rabbit password failed.\n");
+        log_error(g_log, "Get rabbit password failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "exChangeName", _exchgName)){
-        printf("get exchange name failed.\n");
+        log_error(g_log, "Get exchange name failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "directKey", _key)){
-        printf("get key failed.\n");
+        log_error(g_log, "Get key failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "exchangeType", _type)){
-        printf("get exchange type failed.\n");
+        log_error(g_log, "Get exchange type failed.\n");
         return 0;
     }
     return 1;

@@ -4,6 +4,7 @@
 #include "sockbase.h"
 #include "getconfig.h"
 #include "error.h"
+#include "client.h"
 
 //
 //-------socket 包裹函数----------//

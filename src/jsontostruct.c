@@ -29,9 +29,9 @@ RData_MsgContent* j2s(const char* _json)
 
     rdata->length = 22;
     rdata->type = 3;
-    rdata->roamprovince = (u_char)atoi(_roamprovince);
-    *((u_char *)&rdata->region) = (u_char)atoi(_region1);
-    *((u_char *)&rdata->region+1) = (u_char)atoi(_region2);
+    rdata->roamprovince = getProv((u_char)atoi(_roamprovince));
+    *((u_char *)&rdata->region) = 0;
+    *((u_char *)&rdata->region+1) = 0;
     strncpy(rdata->usernumber, (char*)struct_rdata->usernumber+2, 11);
     rdata->usernumber[11] = '0';
     rdata->time = htonl(struct_rdata->time);
@@ -68,7 +68,7 @@ RData_MsgContent* j2s(const char* _json)
     //  t_action [j] = *((u_char *)struct_rdata+i);
     // t_action[j]=0;
 }
-void jsonStrParse(const char* jsonstr, int len,  hashtable_t* rdtable)
+void jsonStrParse(const char* jsonstr, int len)
 {
     int cur = 0, scur;
     char singleJson[SINGLEJSONLEN] = { 0 };
@@ -90,57 +90,69 @@ void jsonStrParse(const char* jsonstr, int len,  hashtable_t* rdtable)
             // got a single json string. transformat it and put into hashtable.
             rdata = j2s(singleJson);
 
-            pthread_mutex_lock(&send_mutex);
-            if (*rdata->usernumber != 0) { // data without a usernumber will not be considered.
+            processRData(rdata);
 
-                // if(hashtable_search(rdtable,rdata) == NULL){
-                //     printf("insert a record!\n");
-                //     hashtable_insert(rdtable, rdata);
-                //     sendRDataMsg(rdata, g_sockfd);
-                // }
-                // else{
-                //     if(rdata->action == 0){
-                //         hashtable_remove(rdtable,rdata);         
-                //     }
-                //     else{
-                //         ////
-                //         //...
-                //         hashtable_remove(rdtable,rdata);  
-                //         hashtable_insert(rdtable,rdata);
-                //     }
-                //     sendRDataMsg(rdata, g_sockfd);
-                // }
-                if(rdata->action == 0){
-                    if(hashtable_search(rdtable,rdata) != NULL ){
-                        printf("remove from table when leave.\n");
-                        hashtable_remove(rdtable,rdata);
-                    }
-                    printf("send leave msg.\n");
-                    sendRDataMsg(rdata, g_sockfd);
-                }
-                else{
-                    RData_MsgContent* rdptr = (RData_MsgContent*)hashtable_search(rdtable,rdata);
-                    if(rdptr == NULL){
-                        printf("insert into table when enter.\n");
-                        hashtable_insert(rdtable,rdata);
-                    }
-                    else{
-                        printf("remove origin and send leave msg when enter.\n");
-                        rdptr->action = 0;
-                        sendRDataMsg(rdptr, g_sockfd);
-                        hashtable_remove(rdtable,rdata);
-                        printf("insert into table when enter.\n");
-                        hashtable_insert(rdtable,rdata);
-                    }
-                    printf("send enter msg.\n");
-                    sendRDataMsg(rdata,g_sockfd);
-                }
-            } 
-            printf("hash count: %d\n", hashtable_count(rdtable));
-            pthread_mutex_unlock(&send_mutex);
-            sleep(1);
+            // pthread_mutex_lock(&send_mutex);
+            // if (*rdata->usernumber != 0) { // data without a usernumber will not be considered.
+
+            //     // if(hashtable_search(rdtable,rdata) == NULL){
+            //     //     printf("insert a record!\n");
+            //     //     hashtable_insert(rdtable, rdata);
+            //     //     sendRDataMsg(rdata, g_sockfd);
+            //     // }
+            //     // else{
+            //     //     if(rdata->action == 0){
+            //     //         hashtable_remove(rdtable,rdata);         
+            //     //     }
+            //     //     else{
+            //     //         ////
+            //     //         //...
+            //     //         hashtable_remove(rdtable,rdata);  
+            //     //         hashtable_insert(rdtable,rdata);
+            //     //     }
+            //     //     sendRDataMsg(rdata, g_sockfd);
+            //     // }
+            //     if(rdata->action == 0){
+            //         if(hashtable_search(rdtable,rdata) != NULL ){
+            //             printf("remove from table when leave.\n");
+            //             hashtable_remove(rdtable,rdata);
+            //         }
+            //         printf("send leave msg.\n");
+            //         //sendRDataMsg(rdata, g_sockfd);
+            //     }
+            //     else{
+            //         RData_MsgContent* rdptr = (RData_MsgContent*)hashtable_search(rdtable,rdata);
+            //         if(rdptr == NULL){
+            //             printf("insert into table when enter.\n");
+            //             hashtable_insert(rdtable,rdata);
+            //         }
+            //         else{
+            //             printf("remove origin and send leave msg when enter.\n");
+            //             rdptr->action = 0;
+            //             //sendRDataMsg(rdptr, g_sockfd); 
+            //             hashtable_remove(rdtable,rdata);
+            //             printf("insert into table when enter.\n");
+            //             hashtable_insert(rdtable,rdata);
+            //         }
+            //         printf("send enter msg.\n");
+            //         //sendRDataMsg(rdata,g_sockfd);
+            //     }
+            // } 
+            // printf("hash count: %d\n", hashtable_count(rdtable));
+            // pthread_mutex_unlock(&send_mutex); 
+
+            //sleep(1);
         }
         cur++;
     }
     //hashtable_trace(rdtable);
+}
+u_char getProv(u_char _prov){
+    u_char pro[32]={11,31,44,12,50,21,13,41,51,32,53,45,35,36,33,22,34,14,15,62,65,46,52,43,42,37,61,64,63,54,23};
+    int i=0;
+    for(;i<32;i++){
+        if(pro[i]==_prov)
+            return ((u_char)i+1);
+    }
+    return 0;
 }

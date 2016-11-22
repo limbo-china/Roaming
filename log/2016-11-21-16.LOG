@@ -1,0 +1,30 @@
+[2016-11-21-16:02:05]-[INFO]-Connecting to server 45.63.121.217:9999 ...
+[2016-11-21-16:02:05]-[INFO]-Connect to server 45.63.121.217:9999 successfully.
+[2016-11-21-16:02:05]-[INFO]-Waitting for requst from server...
+[2016-11-21-16:02:05]-[INFO]-Received REQUEST MESSAGE.
+[2016-11-21-16:02:05]-[INFO]-Send REPLY MESSAGE successfully.
+[2016-11-21-16:02:05]-[INFO]-Start to send FULL DATA.
+[2016-11-21-16:02:05]-[INFO]-Sending FULL DATA end.
+[2016-11-21-16:02:05]-[INFO]-Send FIN MESSAGE successfully.
+[2016-11-21-16:02:10]-[INFO]-Send 2484 msg totally in 5 secs.[LEAVE: 692, ENTER: 1792]
+[2016-11-21-16:02:16]-[INFO]-Send 2281 msg totally in 5 secs.[LEAVE: 870, ENTER: 1411]
+[2016-11-21-16:02:21]-[INFO]-Send 3516 msg totally in 5 secs.[LEAVE: 1131, ENTER: 2385]
+[2016-11-21-16:02:27]-[INFO]-Send 2461 msg totally in 5 secs.[LEAVE: 931, ENTER: 1530]
+[2016-11-21-16:02:32]-[INFO]-Send 1700 msg totally in 5 secs.[LEAVE: 483, ENTER: 1217]
+[2016-11-21-16:02:37]-[INFO]-Send 3915 msg totally in 5 secs.[LEAVE: 1365, ENTER: 2550]
+[2016-11-21-16:02:42]-[INFO]-Send 2692 msg totally in 5 secs.[LEAVE: 741, ENTER: 1951]
+[2016-11-21-16:02:47]-[INFO]-Send 3310 msg totally in 5 secs.[LEAVE: 1411, ENTER: 1899]
+[2016-11-21-16:02:52]-[INFO]-Send 2844 msg totally in 5 secs.[LEAVE: 929, ENTER: 1915]
+[2016-11-21-16:02:57]-[INFO]-Send 1894 msg totally in 5 secs.[LEAVE: 677, ENTER: 1217]
+[2016-11-21-16:03:02]-[INFO]-Send 1737 msg totally in 5 secs.[LEAVE: 559, ENTER: 1178]
+[2016-11-21-16:03:08]-[INFO]-Send 3763 msg totally in 5 secs.[LEAVE: 1266, ENTER: 2497]
+[2016-11-21-16:03:13]-[INFO]-Send 4182 msg totally in 5 secs.[LEAVE: 1163, ENTER: 3019]
+[2016-11-21-16:03:18]-[INFO]-Send 2019 msg totally in 5 secs.[LEAVE: 675, ENTER: 1344]
+[2016-11-21-16:03:23]-[INFO]-Send 3191 msg totally in 5 secs.[LEAVE: 1295, ENTER: 1896]
+[2016-11-21-16:03:28]-[INFO]-Send 3352 msg totally in 5 secs.[LEAVE: 1095, ENTER: 2257]
+[2016-11-21-16:03:33]-[INFO]-Send 2234 msg totally in 5 secs.[LEAVE: 769, ENTER: 1465]
+[2016-11-21-16:03:38]-[INFO]-Send 3289 msg totally in 5 secs.[LEAVE: 1098, ENTER: 2191]
+[2016-11-21-16:03:43]-[INFO]-Send 2398 msg totally in 5 secs.[LEAVE: 774, ENTER: 1624]
+[2016-11-21-16:03:48]-[INFO]-Send 3300 msg totally in 5 secs.[LEAVE: 1068, ENTER: 2232]
+[2016-11-21-16:03:53]-[INFO]-Send 2271 msg totally in 5 secs.[LEAVE: 679, ENTER: 1592]
+[2016-11-21-16:03:58]-[INFO]-Send 3606 msg totally in 5 secs.[LEAVE: 1513, ENTER: 2093]

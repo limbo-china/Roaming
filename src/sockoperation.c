@@ -64,13 +64,13 @@ ssize_t sendn(int _sock, const void* vptr, size_t n)
 }
 int getSrvCfg(char *_ip, int *_port){
     if (!getConfigValue(CONFIG_PATH, "server_ip", _ip)){
-        printf("get server ip failed.\n");
+        log_error(g_log, "Get server ip failed.\n");
         return 0;
     }
 
     char _p[10];
     if (!getConfigValue(CONFIG_PATH, "server_port", _p)){
-        printf("get server port failed.\n");
+        log_error(g_log, "Get server port failed.\n");
         return 0;
     }
 
