@@ -2,18 +2,18 @@
 
 #define DUMP_FILE_PATH "hashtable.dmp"
 
-const int tr2KeepAlive = 3;
+const double tr2KeepAlive = 3.0;
 const double sendLogTimeval = 5.0;
 const int waitReconn = 5;
 const int waitRequest = 2;
 const int dumpWriteTimeval = 10;
 
 int g_sockfd = 0;
-pthread_mutex_t send_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 hashtable_t* rdtable = NULL;
 rfifo_t *rdqueue = NULL;
 
-time_t lastlogtime = 0;
+time_t lastlogtime = 0 , lastsendtime =0;
 int leavenum =0 ,enternum =0;
 int isConn = 0;
 
@@ -42,7 +42,7 @@ void requestDetect()
         }
 
         if (FD_ISSET(g_sockfd, &rset)) {
-            pthread_mutex_lock(&send_mutex);
+            
 
             FReq_MsgContent* freqmsg = (FReq_MsgContent*)malloc(sizeof(FReq_MsgContent));
             if ((n = recv(g_sockfd, freqmsg, sizeof(FReq_MsgContent), 0)) == 3) {
@@ -56,7 +56,6 @@ void requestDetect()
             }
             free(freqmsg);
 
-            pthread_mutex_unlock(&send_mutex);
         }
     }
 }
@@ -255,7 +254,10 @@ void processRData(RData_MsgContent* rdata){
                         hashtable_remove(rdtable,rdata);
                     }
                     //printf("send leave msg.\n");
+                    free(rdata);
+                    //pthread_mutex_lock(&queue_mutex);
                     rfifo_put(rdqueue,t);
+                    //pthread_mutex_unlock(&queue_mutex);
                 }
                 else{
                     RData_MsgContent* rdptr = (RData_MsgContent*)hashtable_search(rdtable,rdata);
@@ -285,6 +287,7 @@ void* roamClient()
     //alarmHandler();
 
     lastlogtime = time(NULL);
+    lastsendtime = time(NULL);
 
     for(;;){
         
@@ -293,13 +296,18 @@ void* roamClient()
 
             if(t == NULL){
             //printf("get queue error.\n"); 
+                if(difftime(time(NULL),lastsendtime) >= tr2KeepAlive){ //send hb msg
+                    sendHBMsg(g_sockfd);
+                    lastsendtime = time(NULL);
+                }
                 usleep(1000000);
             }            
             else{
 
                 if(difftime(time(NULL),lastlogtime) >= sendLogTimeval){
-                    log_info(g_log,"Send %d msg totally in %d secs.[LEAVE: %d, ENTER: %d]\n", 
-                        leavenum+enternum, (int)(difftime(time(NULL),lastlogtime)),leavenum,enternum);
+                    log_info(g_log,"Send %d msg totally in %d secs.[LEAVE: %d, ENTER: %d][TCount: %d, QCount: %d]\n", 
+                        leavenum+enternum, (int)(difftime(time(NULL),lastlogtime)),leavenum,enternum,
+                        hashtable_count(rdtable), rfifo_count(rdqueue));
                     lastlogtime = time(NULL);
                     leavenum = 0;
                     enternum = 0;
@@ -311,6 +319,8 @@ void* roamClient()
                     enternum++;
 
                 sendRDataMsg(t, g_sockfd); 
+
+                lastsendtime = time(NULL);
 
                 //free(t);             
 
