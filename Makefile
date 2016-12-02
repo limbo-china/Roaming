@@ -1,9 +1,9 @@
 BIN = ./bin/roam
 CC = gcc
 CFLAGS = -Wall -g
-INC = -I ./base -I ./src
-SRC =  $(wildcard base/*.c) $(wildcard src/*.c)
-LIB = -lpthread
+INC = -I ./base -I ./src -I ./rabbit
+SRC =  $(wildcard base/*.c) $(wildcard src/*.c) $(wildcard rabbit/*.c)
+LIB = -lpthread -lm ./rabbit/librabbitmq.a
 #OBJ =
 
 all: $(BIN)

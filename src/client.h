@@ -3,13 +3,26 @@
 
 #include "sockoperation.h"
 #include "msgstruct.h"
+#include "hashtable.h"
+#include "datahash.h"
+
+#include "rabbit_test.h"
+#include "getrabbit.h"
+
+#define DUMP_FILE_PATH "hashtable.dmp"
 
 extern int g_sockfd;
-
-void *heartBeatDetect();
-void *roamClient();
-void  alarmHandler();
-void  sendHBMsg(int _sock);
-void  sendFRepMsg(int _sock);
+extern pthread_mutex_t send_mutex;
+void* requestDetect();
+void* roamClient();
+void* hashTableDump();
+void alarmHandler();
+void sendHBMsg(int _sock);
+void sendFRepMsg(int _sock);
+void sendRDataMsg(RData_MsgContent* rdata,int _sock);
+void sendFDataFinMsg(int _sock);
+void sendFullRData(hashtable_t *rdtable, u_char prov);
+int connectToServ();  // connect to the server and return the socket descriptor
+void dumpWriteUpdate(FILE *f); //update the hashtable dumpfile.
 
 #endif

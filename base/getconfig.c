@@ -19,50 +19,66 @@
 /* ²ÎÊý£º1,ÅäÖÃÎÄ¼þÂ·¾¶; 2,Æ¥ÅäÃû³Æ; 3,Êä³ö´æ´¢¿Õ¼ä                        */
 /* ·µ»Ø£º0,Î´ÕÒµ½; 1,ÕÒµ½·ûºÏÃû³ÆµÄÖµ                                      */
 /***************************************************************************/
-int getConfigValue(const char *conf_path, const char *conf_name, char *config_buff){
+int getConfigValue(const char* conf_path, const char* conf_name,
+    char* config_buff)
+{
     char config_linebuf[LINE_MAX_LENGTH];
     char line_name[NAME_MAX_LENGTH];
-    char *config_sign = "=";
-    char *leave_line;
-    FILE *f;
-    int flag =0, len;
+    char* config_sign = "=";
+    char* leave_line;
+    FILE* f;
+    int flag = 0, len;
 
     f = fopen(conf_path, "r");
-    if (f == NULL){
+    if (f == NULL) {
         printf("OPEN CONFIG FALID:%s\n", conf_path);
         return 0;
     }
 
     fseek(f, 0, SEEK_SET);
+<<<<<<< HEAD
     while (fgets(config_linebuf, LINE_MAX_LENGTH, f) != NULL){
         if (strlen(config_linebuf) < 4){ //È¥³ý¿ÕÐÐ "=\r\n"
             continue;
         }
 
         if (config_linebuf[0] == '#'){//È¥³ý×¢ÊÍÐÐ "#"
+=======
+    while (fgets(config_linebuf, LINE_MAX_LENGTH, f) != NULL) {
+        if (strlen(config_linebuf) < 4) { //åŽ»é™¤ç©ºè¡Œ "=\r\n"
             continue;
         }
 
-        if (config_linebuf[strlen(config_linebuf) - 1] == 10){
+        if (config_linebuf[0] == '#') { //åŽ»é™¤æ³¨é‡Šè¡Œ "#"
+>>>>>>> 001198b671b63381741835d032c414b379b6614f
+            continue;
+        }
+
+        if (config_linebuf[strlen(config_linebuf) - 1] == 10) {
             config_linebuf[strlen(config_linebuf) - 1] = '\0';
         }
 
         memset(line_name, 0, sizeof(line_name));
         leave_line = strstr(config_linebuf, config_sign);
+<<<<<<< HEAD
         if (leave_line == NULL){//È¥³ýÎÞ"="µÄÇé¿ö
+=======
+        if (leave_line == NULL) { //åŽ»é™¤æ— "="çš„æƒ…å†µ
+>>>>>>> 001198b671b63381741835d032c414b379b6614f
             continue;
         }
 
         int leave_num = leave_line - config_linebuf;
-        if (leave_num > NAME_MAX_LENGTH){
+        if (leave_num > NAME_MAX_LENGTH) {
             continue;
         }
 
         strncpy(line_name, config_linebuf, leave_num);
-        if (strcmp(line_name, conf_name) == 0){
+        if (strcmp(line_name, conf_name) == 0) {
             len = strlen(config_linebuf) - leave_num - 1;
             len = len > VALUE_MAX_LENGTH ? VALUE_MAX_LENGTH : len;
-            strncpy(config_buff, config_linebuf + (leave_num + 1), strlen(config_linebuf) - leave_num - 1);
+            strncpy(config_buff, config_linebuf + (leave_num + 1),
+                strlen(config_linebuf) - leave_num - 1);
             *(config_buff + len) = '\0';
             flag = 1;
             break;

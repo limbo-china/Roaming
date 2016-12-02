@@ -18,6 +18,4 @@ ssize_t			   sendn(int fd, const void *vptr, size_t n); //发送n个字节大小
 int				   getSrvCfg(char *_ip, int *_port); //获取服务器ip和端口,成功返回1，失败返回0
 struct sockaddr_in initSockAddr(char *_ip, int _port); //返回一个指定ip和端口的sockaddr
 
-#define CONFIG_PATH "../conf/roam.conf"
-
 #endif

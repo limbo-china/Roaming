@@ -39,7 +39,8 @@ void Listen(int _sock, int backlog){
         err_sys("listen error");
     }
 }
-ssize_t sendn(int _sock, const void *vptr, size_t n){
+ssize_t sendn(int _sock, const void* vptr, size_t n)
+{
     size_t nleft;
     ssize_t nwritten;
     const char *ptr;
