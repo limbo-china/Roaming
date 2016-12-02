@@ -1,64 +1,80 @@
 #include "client.h"
 
-const int tr2KeepAlive = 3;
+#define DUMP_FILE_PATH "hashtable.dmp"
+
+const double tr2KeepAlive = 3.0;
+const double sendLogTimeval = 5.0;
 const int waitReconn = 5;
-const int dumpWriteTime = 10;
+const int waitRequest = 2;
+const int dumpWriteTimeval = 10;
 
 int g_sockfd = 0;
-pthread_mutex_t send_mutex = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
 hashtable_t* rdtable = NULL;
+rfifo_t *rdqueue = NULL;
 
-int datanum = 0;
+time_t lastlogtime = 0 , lastsendtime =0;
+int leavenum =0 ,enternum =0;
+int isConn = 0;
 
-void* requestDetect()
+//int datanum = 0;
+
+void requestDetect()
 {
     int maxfdp1;
-    fd_set rset, wset; // read set and write set
-    int n;
+    fd_set rset; // read set and write set
+    ssize_t n;
 
     FD_ZERO(&rset);
-    FD_ZERO(&wset);
 
-    for (;;) {
+    struct timeval timeout;  
 
     if(g_sockfd != 0){
+
         FD_SET(g_sockfd, &rset);
-        //FD_SET(g_sockfd, &wset);
         maxfdp1 = g_sockfd + 1;
-        select(maxfdp1, &rset, NULL, NULL, NULL);
+        timeout.tv_sec = waitRequest;
+        timeout.tv_usec = 0;
+
+        log_info(g_log,"Waitting for requst from server...\n");
+        if(select(maxfdp1, &rset, NULL, NULL, &timeout) == 0){
+            log_info(g_log,"Waitting timeout.\n");
+        }
 
         if (FD_ISSET(g_sockfd, &rset)) {
+            
+
             FReq_MsgContent* freqmsg = (FReq_MsgContent*)malloc(sizeof(FReq_MsgContent));
             if ((n = recv(g_sockfd, freqmsg, sizeof(FReq_MsgContent), 0)) == 3) {
                 if (freqmsg->msg_length == 3 && freqmsg->msg_type == 1) {
-                    printf("received request message\n");
-                    sendFRepMsg(g_sockfd);
-                    pthread_mutex_lock(&send_mutex);
-                    sendFullRData(rdtable, freqmsg->dest_prov);
-                    pthread_mutex_unlock(&send_mutex);
-                    sendFDataFinMsg(g_sockfd);
+                    log_info(g_log,"Received REQUEST MESSAGE.\n");
+
+                    if(sendFRepMsg(g_sockfd) == 0)
+                        return ;
+                    if(sendFullRData(rdtable, freqmsg->dest_prov) == 0)
+                        return ;
+                    if(sendFDataFinMsg(g_sockfd) == 0)
+                        return ;
                 }
             }
             free(freqmsg);
         }
     }
-    }
-    return NULL;
 }
-void alarmHandler()
-{
-    if (g_sockfd == 0) {
-        signal(SIGALRM, alarmHandler);
-        alarm(tr2KeepAlive);
-        return;
-    }
+// void alarmHandler()
+// {
+//     if (g_sockfd == 0) {
+//         signal(SIGALRM, alarmHandler);
+//         alarm(tr2KeepAlive);
+//         return;
+//     }
 
-    sendHBMsg(g_sockfd); //发送心跳包进行检测
+//     sendHBMsg(g_sockfd); //发送心跳包进行检测
 
-    signal(SIGALRM, alarmHandler); //重新定时
-    alarm(tr2KeepAlive);
-}
-void sendHBMsg(int _sock)
+//     signal(SIGALRM, alarmHandler); //重新定时
+//     alarm(tr2KeepAlive);
+// }
+int sendHBMsg(int _sock)
 {
     HB_MsgContent hbmsg = constructHBMsg();
 
@@ -66,57 +82,67 @@ void sendHBMsg(int _sock)
     if ((n = send(_sock, &hbmsg, sizeof(hbmsg), 0)) < 0) {
         //
         /////reconnect
-        printf("reconnecting to server ...\n");
-
+        log_info(g_log,"Connection broken! Waitting for reconnecting ...\n");
+        log_info(g_log,"Reconnecting to server ...\n");
         close(g_sockfd);
-        int t = connectToServ();
-        //if (t != 0)
-            g_sockfd = t;
+        isConn = 0;
+        connectToServ();
 
-        printf("reconnect succeed.\n");
+        return 0;
     }
-    printf("hb :%d\n", n);
+    log_info(g_log,"Send HB MESSAGE successfully.\n");
+    return 1;
 }
-void sendFRepMsg(int _sock)
+int sendFRepMsg(int _sock)
 {
     FRep_MsgContent frepmsg = constructFRepMsg();
 
     int n;
     if ((n = send(_sock, &frepmsg, sizeof(frepmsg), 0)) < 0) {
-        printf("connection broken!waitting for reconnecting ...\n");
-        sleep(waitReconn); // wait for reconnecting
-        //
+        log_info(g_log,"Connection broken! Waitting for reconnecting ...\n");
+        log_info(g_log,"Reconnecting to server ...\n");
+        close(g_sockfd);
+        isConn = 0;
+        connectToServ();
+
+        return 0;
     }
-    printf("frep: %d\n", n);
+    log_info(g_log,"Send REPLY MESSAGE successfully.\n");
+    return 1;
 }
-void sendFDataFinMsg(int _sock)
+int sendFDataFinMsg(int _sock)
 {
     FData_FinMsgContent fdatafinmsg = constructFDataFinMsg();
 
     int n;
     if ((n = send(_sock, &fdatafinmsg, sizeof(fdatafinmsg), 0)) < 0) {
-        printf("connection broken!waitting for reconnecting ...\n");
-        sleep(waitReconn); // wait for reconnecting
-        //
+        log_info(g_log,"Connection broken! Waitting for reconnecting ...\n");
+        log_info(g_log,"Reconnecting to server ...\n");
+        close(g_sockfd);
+        isConn = 0;
+        connectToServ();
+
+        return 0;
     }
-    printf("fdatafin: %d\n", n);
+    log_info(g_log,"Send FIN MESSAGE successfully.\n");
+    return 1;
 }
-void sendRDataMsg(RData_MsgContent* rdata, int _sock)
+int sendRDataMsg(RData_MsgContent* rdata, int _sock)
 {
     int n;
-    datanum++;
-    int i;
-    printf("%d: ", datanum);
-    printf("%u", rdata->length);
-    printf("%u", rdata->type);
-    printf("%u", rdata->roamprovince);
-    printf("%u",  *((u_char *)&rdata->region));
-    printf("%u",  *((u_char *)&rdata->region+1));
-    for (i = 0; i < 12; i++)
-        printf("%c", *((u_char*)rdata->usernumber + i));
-    printf("%u", ntohl(rdata->time));
-    printf("%d", rdata->action);
-    printf("\n");
+    // datanum++;
+    // int i;
+    // printf("%d: ", datanum);
+    // printf("%u", rdata->length);
+    // printf("%u", rdata->type);
+    // printf("%u", rdata->roamprovince);
+    // printf("%u",  *((u_char *)&rdata->region));
+    // printf("%u",  *((u_char *)&rdata->region+1));
+    // for (i = 0; i < 12; i++)
+    //     printf("%c", *((u_char*)rdata->usernumber + i));
+    // printf("%u", ntohl(rdata->time));
+    // printf("%d", rdata->action);
+    // printf("\n");
 
     char _datamsg[RDATAMSG_LENGTH + 1];
     _datamsg[0] = rdata->length;
@@ -126,44 +152,41 @@ void sendRDataMsg(RData_MsgContent* rdata, int _sock)
     strncpy(_datamsg + 5, rdata->usernumber, 12);
     strncpy(_datamsg + 17, (char*)&rdata->time, 4);
     _datamsg[21] = rdata->action;
-    n = 0;
+
     if ((n = send(_sock, _datamsg, RDATAMSG_LENGTH, 0)) < 0) {
-        printf("connection broken!waitting for reconnecting ...\n");
-        sleep(waitReconn); // wait for reconnecting
-        //
+        log_info(g_log,"Connection broken! Waitting for reconnecting ...\n");
 
-        // printf("reconnecting to server ...\n");
+        log_info(g_log,"Reconnecting to server ...\n");
 
-        // close(g_sockfd);
-        // int t = connectToServ();
-        // if (t != 0)
-        //     g_sockfd = t;
+        close(g_sockfd);
+        isConn = 0;
+        connectToServ();
 
-        // sleep(1);
-        // printf("reconnect succeed.\n");
+        return 0;
     }
-    //printf("sock: %d\n", g_sockfd);
-    printf("rdata: %d\n", n);
+    return 1;
 }
-void sendFullRData(hashtable_t* h, u_char prov)
+int sendFullRData(hashtable_t* h, u_char prov)
 {
-    printf("\n\n\n send full data !!\n\n\n");
+    log_info(g_log,"Start to send FULL DATA.\n");
 
     int i;
     void* e;
     for (i = 0; i < h->tablelength; i++) {
         e = h->table[i];
         while (NULL != e) {
-            printf("sending full data ....\n");
+            
             RData_MsgContent* rdptr = (RData_MsgContent*)e;
             if(prov == 0 || prov == rdptr->roamprovince)
-                sendRDataMsg(rdptr, g_sockfd);
-            //sleep(2);
+                if(sendRDataMsg(rdptr, g_sockfd) == 0)
+                    return 0;
             e = (void*)*(unsigned long*)(e + h->offset);
         }
     }
+    log_info(g_log,"Sending FULL DATA end.\n");
+    return 1;
 }
-int connectToServ()
+void connectToServ()
 {
 
     char server_ip[20] = { 0 };
@@ -171,62 +194,164 @@ int connectToServ()
     struct sockaddr_in servaddr;
 
     if (!getSrvCfg(server_ip, &server_port)) {
-        printf("get server configuration failed.\n");
-        return 0;
+        log_error(g_log,"Get server configuration failed.\n");
+        return ;
     }
 
     int sockfd;
-    int isConn = 0;
+    isConn = 0;
     while (isConn == 0) {
 
         sockfd = Socket(AF_INET, SOCK_STREAM, 0);
-
-        //int bufsize = 1024;
-        //socklen_t len= sizeof(bufsize);
-        //setsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&bufsize,len);
-
-        //printf("%d\n",bufsize );
-
-        //getsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&bufsize,&len);
-
-        //printf("%d\n",bufsize );
 
         servaddr = initSockAddr(server_ip, server_port); //move it ???
 
         signal(SIGPIPE, SIG_IGN); /// move it to the beginning of roamClient() ???
 
-        printf("connecting to server ...\n");
+        log_info(g_log, "Connecting to server %s:%d ...\n", server_ip, server_port);
         if(connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
-            printf("connect to server failed. trying to reconnect... \n");
+            log_info(g_log, "Connect to server %s:%d failed. Trying to reconnect... \n", server_ip, server_port);
             close(sockfd);
             sleep(waitReconn);
         }
         else{
+            log_info(g_log, "Connect to server %s:%d successfully.\n", server_ip, server_port);
+
             isConn = 1;
-            printf("connect succeed.\n");
+            g_sockfd = sockfd;
+            requestDetect(); //wait for request
         }
     }
+}
+void processRData(RData_MsgContent* rdata){
 
-    return sockfd;
+    if (*rdata->usernumber != 0) { // data without a usernumber will not be considered.
+
+                // if(hashtable_search(rdtable,rdata) == NULL){
+                //     printf("insert a record!\n");
+                //     hashtable_insert(rdtable, rdata);
+                //     sendRDataMsg(rdata, g_sockfd);
+                // }
+                // else{
+                //     if(rdata->action == 0){
+                //         hashtable_remove(rdtable,rdata);         
+                //     }
+                //     else{
+                //         ////
+                //         //...
+                //         hashtable_remove(rdtable,rdata);  
+                //         hashtable_insert(rdtable,rdata);
+                //     }
+                //     sendRDataMsg(rdata, g_sockfd);
+                // }
+                RData_MsgContent* t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+                memcpy(t, rdata, sizeof(RData_MsgContent));
+
+                if(rdata->action == 0){
+                    if(hashtable_search(rdtable,rdata) != NULL ){
+                        //printf("remove from table when leave.\n");
+                        hashtable_remove(rdtable,rdata);
+                    }
+                    //printf("send leave msg.\n");
+                    free(rdata);
+                    //pthread_mutex_lock(&queue_mutex);
+                    if(isConn)
+                        rfifo_put(rdqueue,t);
+                    //pthread_mutex_unlock(&queue_mutex);
+                }
+                else{
+                    RData_MsgContent* rdptr = (RData_MsgContent*)hashtable_search(rdtable,rdata);
+                    if(rdptr == NULL){
+                        //printf("insert into table when enter.\n");
+                        hashtable_insert(rdtable,rdata);
+                    }
+                    else{
+                        //printf("remove origin and send leave msg when enter.\n");
+                        rdptr->action = 0;
+                        if(isConn){
+                            memcpy(t, rdptr, sizeof(RData_MsgContent));
+                            rfifo_put(rdqueue,t);
+                        }
+                        hashtable_remove(rdtable,rdata);
+                        //printf("insert into table when enter.\n");
+                        hashtable_insert(rdtable,rdata);
+                    }
+                    //printf("send enter msg.\n");
+                    if(isConn)
+                        rfifo_put(rdqueue,t);
+                }
+    } 
+    //printf("queue count: %d\n", rfifo_count(rdqueue));
 }
 void* roamClient()
-{
-     int t = connectToServ();
-    // if (t != 0)
-         g_sockfd = t;
-    // else
-    //     return NULL;
+{   
 
-    alarmHandler();
+    connectToServ();
 
-    rdtable = hashtable_create(1000, sizeof(RData_MsgContent), 0, 0, rd_free, rd_hash, rd_compare);
+    //alarmHandler();
 
-    //int len = getjson();
-    getFromRabbit(rdtable);
+    lastlogtime = time(NULL);
+    lastsendtime = time(NULL);
 
-    //jsonStrParse(jsontest, len , rdtable);
+    for(;;){
+        
+        if (isConn == 1){
+            RData_MsgContent* t = (RData_MsgContent*)rfifo_get(rdqueue);
+
+            if(t == NULL){
+            //printf("get queue error.\n"); 
+                if(difftime(time(NULL),lastsendtime) >= tr2KeepAlive){ //send hb msg
+                    sendHBMsg(g_sockfd);
+                    lastsendtime = time(NULL);
+                }
+                usleep(1000000);
+            }            
+            else{
+
+                if(difftime(time(NULL),lastlogtime) >= sendLogTimeval){
+                    log_info(g_log,"Send %d msg totally in %d secs.[LEAVE: %d, ENTER: %d][TCount: %d, QCount: %d]\n", 
+                        leavenum+enternum, (int)(difftime(time(NULL),lastlogtime)),leavenum,enternum,
+                        hashtable_count(rdtable), rfifo_count(rdqueue));
+                    lastlogtime = time(NULL);
+                    leavenum = 0;
+                    enternum = 0;
+                }
+
+                if(t->action == 0)
+                    leavenum++;
+                else if(t->action == 1)
+                    enternum++;
+
+                sendRDataMsg(t, g_sockfd); 
+
+                lastsendtime = time(NULL);
+
+                //free(t);             
+
+            }
+            //printf("queue count: %d.\n",rfifo_count(rdqueue));
+            //sleep(1);
+        }
+        else{
+            usleep(2000000);
+        }
+
+        
+    }
 
     return NULL;
+}
+void* queueFromRabbit(){
+
+    //int len = getjson();
+    for(; ;){
+        
+        getFromRabbit();
+        //jsonStrParse(jsontest, len , rdqueue);
+        sleep(5);
+    }
+    return NULL;
+
 }
 
 void *hashTableDump(){
@@ -234,12 +359,12 @@ void *hashTableDump(){
     f = fopen(DUMP_FILE_PATH, "w+");
 
     if (f == NULL) {
-        printf("OPEN DUMP FALID:%s\n", DUMP_FILE_PATH);
+        log_info(g_log, "Open DUMP failed:%s\n", DUMP_FILE_PATH);
         return 0;
     }
 
     for(; ;){
-        sleep(dumpWriteTime);
+        sleep(dumpWriteTimeval);
         fseek(f, 0, SEEK_SET);
         if(rdtable != NULL)
             dumpWriteUpdate(f);
@@ -247,21 +372,46 @@ void *hashTableDump(){
 }
 
 void dumpWriteUpdate(FILE *f){
-    printf("\n\n\n update the dumpfile!!!\n\n\n");
+    log_info(g_log, "Updating the dumpfile.\n");
 
-    int i;
+    int i, writeNum =0;
     void* e;
     for (i = 0; i < rdtable->tablelength; i++) {
         e = rdtable->table[i];
         while (NULL != e) {
             RData_MsgContent* rdptr = (RData_MsgContent*)e;
-            printf("write to file.\n");
-            fwrite(rdptr, RDATAMSG_LENGTH, 1, f);
-            fputc('\n',f);
+            fwrite(rdptr, sizeof(RData_MsgContent), 1, f);
+            writeNum = writeNum +1;
+            //fputc('\n',f);
             e = (void*)*(unsigned long*)(e + rdtable->offset);
         }
     }
-    printf("dumpfile updated. \n");
+    fflush(f);
+    log_info(g_log, "Dumpfile updated. %d records written.\n", writeNum);
+}
+
+void dumpFileRead(){
+    FILE* f;
+    f = fopen(DUMP_FILE_PATH, "r");
+    int readNum =0;
+
+    if (f == NULL) {
+        log_info(g_log, "Open DUMP failed:%s\n", DUMP_FILE_PATH);
+        return ;
+    }
+
+    RData_MsgContent* t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+
+    log_info(g_log, "Reading the dumpfile.\n");
+
+    while(fread(t, sizeof(RData_MsgContent), 1, f) == 1){
+        readNum = readNum +1;
+        hashtable_insert(rdtable,t);
+    }
+
+    log_info(g_log, "Read successfully. %d records got.\n",readNum);
+
+
 }
 
 

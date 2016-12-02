@@ -1,0 +1,38 @@
+[2016-11-21-15:47:38]-[INFO]-Connecting to server 45.63.121.217:9999 ...
+[2016-11-21-15:47:39]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
+[2016-11-21-15:47:39]-[INFO]-Waitting for requst from server...
+[2016-11-21-15:47:39]-[INFO]-Received REQUEST MESSAGE.
+[2016-11-21-15:47:39]-[INFO]-Send REPLY MESSAGE succeed.
+[2016-11-21-15:47:39]-[INFO]-Start to send FULL DATA.
+[2016-11-21-15:47:39]-[INFO]-Sending FULL DATA end.
+[2016-11-21-15:47:39]-[INFO]-Send FIN MESSAGE succeed.
+[2016-11-21-15:53:32]-[INFO]-Connecting to server 45.63.121.217:9999 ...
+[2016-11-21-15:53:32]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
+[2016-11-21-15:53:32]-[INFO]-Waitting for requst from server...
+[2016-11-21-15:53:32]-[INFO]-Received REQUEST MESSAGE.
+[2016-11-21-15:53:32]-[INFO]-Send REPLY MESSAGE succeed.
+[2016-11-21-15:53:32]-[INFO]-Start to send FULL DATA.
+[2016-11-21-15:53:32]-[INFO]-Sending FULL DATA end.
+[2016-11-21-15:53:32]-[INFO]-Send FIN MESSAGE succeed.
+[2016-11-21-15:53:49]-[INFO]-Connecting to server 45.63.121.217:9999 ...
+[2016-11-21-15:53:49]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
+[2016-11-21-15:53:49]-[INFO]-Waitting for requst from server...
+[2016-11-21-15:53:49]-[INFO]-Received REQUEST MESSAGE.
+[2016-11-21-15:53:49]-[INFO]-Send REPLY MESSAGE succeed.
+[2016-11-21-15:53:49]-[INFO]-Start to send FULL DATA.
+[2016-11-21-15:53:49]-[INFO]-Sending FULL DATA end.
+[2016-11-21-15:53:49]-[INFO]-Send FIN MESSAGE succeed.
+[2016-11-21-15:53:55]-[INFO]-Sent 3665 msg totally in 5 secs.[LEAVE: 1342, ENTER: 2323]
+[2016-11-21-15:54:01]-[INFO]-Sent 2734 msg totally in 5 secs.[LEAVE: 823, ENTER: 1911]
+[2016-11-21-15:54:07]-[INFO]-Sent 5191 msg totally in 5 secs.[LEAVE: 1681, ENTER: 3510]
+[2016-11-21-15:57:21]-[INFO]-Connecting to server 45.63.121.217:9999 ...
+[2016-11-21-15:57:21]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
+[2016-11-21-15:57:21]-[INFO]-Waitting for requst from server...
+[2016-11-21-15:57:21]-[INFO]-Received REQUEST MESSAGE.
+[2016-11-21-15:57:21]-[INFO]-Send REPLY MESSAGE succeed.
+[2016-11-21-15:57:21]-[INFO]-Start to send FULL DATA.
+[2016-11-21-15:57:21]-[INFO]-Sending FULL DATA end.
+[2016-11-21-15:57:21]-[INFO]-Send FIN MESSAGE succeed.
+[2016-11-21-15:57:27]-[INFO]-Sent 3496 msg totally in 5 secs.[LEAVE: 1076, ENTER: 2420]
+[2016-11-21-15:57:33]-[INFO]-Sent 3981 msg totally in 5 secs.[LEAVE: 1368, ENTER: 2613]
+[2016-11-21-15:57:39]-[INFO]-Sent 2652 msg totally in 5 secs.[LEAVE: 1010, ENTER: 1642]

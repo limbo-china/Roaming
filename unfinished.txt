@@ -17,6 +17,7 @@ parse roamdata and send increment data.
 4.
 the city fragment in roam data.
 
+####
 5.
 read configurations from rabbit.conf may make error. ???? 
 
@@ -27,3 +28,24 @@ send reply msg and fin msg. (and update server_test code to cooperate with it)
 test heartbeat / increment data / full data / reconnect / dump file ,
 using test_server.
 
+####
+7.queue (always recv from rabbit , if no connect , update table but not send)
+
+::::  memory problem, use too much memory. should free somewhere.
+
+####
+8.recv after connect, before send, timeout, nonblock
+
+####
+9.log  (full data , connect , reconnect , send data(30s how many sent, leave and enter))
+
+:::log in different hours should  generate diffrent files. .......!!!
+
+
+####
+10.hb, 30s no sending.
+
+
+11.ask why do {}while(0)   in the log.h
+
+12. ask "include" problem
