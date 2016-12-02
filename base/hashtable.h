@@ -16,7 +16,7 @@
 
 #include <time.h>
 
-#define HASHTABLE_TIMEOUT
+//#define HASHTABLE_TIMEOUT
 #define HASHTABLE_TABLE_LOCK
 #ifdef HASHTABLE_TABLE_LOCK
 #include <pthread.h>
