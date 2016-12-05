@@ -2,11 +2,11 @@
 
 #define DUMP_FILE_PATH "hashtable.dmp"
 
-const double tr2KeepAlive = 3.0;
-const double sendLogTimeval = 5.0;
+const double tr2KeepAlive = 60.0;
+const double sendLogTimeval = 30.0;
 const int waitReconn = 5;
 const int waitRequest = 2;
-const int dumpWriteTimeval = 10;
+const int dumpWriteTimeval = 1800;
 
 int g_sockfd = 0;
 //pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -170,20 +170,22 @@ int sendFullRData(hashtable_t* h, u_char prov)
 {
     log_info(g_log,"Start to send FULL DATA.\n");
 
-    int i;
+    int i,sentNum=0;
     void* e;
     for (i = 0; i < h->tablelength; i++) {
         e = h->table[i];
         while (NULL != e) {
             
             RData_MsgContent* rdptr = (RData_MsgContent*)e;
-            if(prov == 0 || prov == rdptr->roamprovince)
+            if(prov == 0 || prov == rdptr->roamprovince){
                 if(sendRDataMsg(rdptr, g_sockfd) == 0)
                     return 0;
+                sentNum = sentNum +1;
+            }
             e = (void*)*(unsigned long*)(e + h->offset);
         }
     }
-    log_info(g_log,"Sending FULL DATA end.\n");
+    log_info(g_log,"Sending FULL DATA end. %d msg sent.\n", sentNum);
     return 1;
 }
 void connectToServ()
@@ -387,7 +389,7 @@ void dumpWriteUpdate(FILE *f){
         }
     }
     fflush(f);
-    log_info(g_log, "Dumpfile updated. %d records written.\n", writeNum);
+    log_info(g_log, "Dumpfile updated. %d records written.[TCount: %d, QCount: %d]\n", writeNum,hashtable_count(rdtable), rfifo_count(rdqueue));
 }
 
 void dumpFileRead(){
@@ -400,13 +402,19 @@ void dumpFileRead(){
         return ;
     }
 
-    RData_MsgContent* t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+    
 
     log_info(g_log, "Reading the dumpfile.\n");
 
-    while(fread(t, sizeof(RData_MsgContent), 1, f) == 1){
+    while(1){
+
+        RData_MsgContent* t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+
+        if(fread(t, sizeof(RData_MsgContent), 1, f) != 1)
+            break;
+
         readNum = readNum +1;
-        hashtable_insert(rdtable,t);
+        processRData(t);
     }
 
     log_info(g_log, "Read successfully. %d records got.\n",readNum);
