@@ -1,6 +1,8 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
+
+
 #include "sockoperation.h"
 #include "msgstruct.h"
 #include "hashtable.h"
@@ -11,25 +13,39 @@
 #include "getrabbit.h"
 #include "log.h"
 
-extern int g_sockfd;
-extern rfifo_t *rdqueue;
-extern pthread_mutex_t send_mutex;
-extern hashtable_t* rdtable;
-extern log_t * g_log;
+typedef struct Connection{
+  	int socket;
+  	log_t * log;
+  	rfifo_t *rdqueue;
+  	time_t lastlogtime; 
+  	time_t lastsendtime;
+	int leavenum;
+	int enternum;
+	int isConn;
+} Connection_Info;
 
-void requestDetect();
-void* roamClient();
+//extern int g_sockfd;
+//extern rfifo_t *rdqueue;
+//extern pthread_mutex_t send_mutex;
+extern hashtable_t* rdtable;
+extern Connection_Info *sms_conn;
+extern Connection_Info *mms_conn;
+//extern log_t * g_log;
+
+void requestDetect(Connection_Info *_conn);
+void* roamClient(void *_conn_t);
 void* queueFromRabbit();
 void* hashTableDump();
 //void alarmHandler();
 void processRData(RData_MsgContent* rdata);
-int sendHBMsg(int _sock);  //1 success , 0 fail.
-int sendFRepMsg(int _sock);
-int sendRDataMsg(RData_MsgContent* rdata,int _sock);
-int sendFDataFinMsg(int _sock);
-int sendFullRData(hashtable_t *rdtable, u_char prov);
-void connectToServ();  // connect to the server 
+int sendHBMsg(Connection_Info *_conn);  //1 success , 0 fail.
+int sendFRepMsg(Connection_Info *_conn);
+int sendRDataMsg(RData_MsgContent* rdata,Connection_Info *_conn);
+int sendFDataFinMsg(Connection_Info *_conn);
+int sendFullRData(hashtable_t *rdtable, u_char prov, Connection_Info *_conn);
+void connectToServ(Connection_Info *_conn);  // connect to the server 
 void dumpWriteUpdate(FILE *f); //update the hashtable dumpfile.
 void dumpFileRead(); // read dumpfile and restore the hashtable.
+
 
 #endif

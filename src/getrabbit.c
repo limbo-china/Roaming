@@ -17,7 +17,8 @@ void getFromRabbit()
 
     if(!getRabbitCfg(hostname,&port,rabbitusername,rabbituserpasswd,
         exchangename,routingkey,exchangetype)){
-        log_error(g_log, "Get rabbit configuration failed.\n");
+        log_error(sms_conn->log, "Get rabbit configuration failed.\n");
+        log_error(mms_conn->log, "Get rabbit configuration failed.\n");
         return ;
     }
 
@@ -158,39 +159,46 @@ int getRabbitCfg(char *_host, int *_port, char *_user, char *_pwd,
     char *_exchgName, char* _key, char *_type){
 
     if (!getConfigValue(CONFIG_PATH, "rabbitHost", _host)){
-        log_error(g_log, "Get rabbit host failed.\n");
+        log_error(sms_conn->log, "Get rabbit host failed.\n");
+        log_error(mms_conn->log, "Get rabbit host failed.\n");
         return 0;
     }
 
     char _p[10];
     if (!getConfigValue(CONFIG_PATH, "rabbitPort", _p)){
-        log_error(g_log, "Get rabbit port failed.\n");
+        log_error(sms_conn->log, "Get rabbit port failed.\n");
+        log_error(mms_conn->log, "Get rabbit port failed.\n");
         return 0;
     }
     *_port = atoi(_p);
 
     if (!getConfigValue(CONFIG_PATH, "rabbitUserName", _user)){
-        log_error(g_log, "Get rabbit username failed.\n");
+        log_error(sms_conn->log, "Get rabbit username failed.\n");
+        log_error(mms_conn->log, "Get rabbit port failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "rabbitUserPasswd", _pwd)){
-        log_error(g_log, "Get rabbit password failed.\n");
+        log_error(sms_conn->log, "Get rabbit password failed.\n");
+        log_error(mms_conn->log, "Get rabbit port failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "exChangeName", _exchgName)){
-        log_error(g_log, "Get exchange name failed.\n");
+        log_error(sms_conn->log, "Get exchange name failed.\n");
+        log_error(mms_conn->log, "Get rabbit port failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "directKey", _key)){
-        log_error(g_log, "Get key failed.\n");
+        log_error(sms_conn->log, "Get key failed.\n");
+        log_error(mms_conn->log, "Get rabbit port failed.\n");
         return 0;
     }
 
     if (!getConfigValue(CONFIG_PATH, "exchangeType", _type)){
-        log_error(g_log, "Get exchange type failed.\n");
+        log_error(sms_conn->log, "Get exchange type failed.\n");
+        log_error(mms_conn->log, "Get rabbit port failed.\n");
         return 0;
     }
     return 1;
