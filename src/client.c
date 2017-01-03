@@ -8,9 +8,15 @@ const int waitReconn = 5;
 const int waitRequest = 2;
 const int dumpWriteTimeval = 1800;
 
+
+//套接字需要拓展到2个。对应2个连接。
 int g_sockfd = 0;
 //pthread_mutex_t queue_mutex = PTHREAD_MUTEX_INITIALIZER;
-hashtable_t* rdtable = NULL;
+
+
+hashtable_t* rdtable = NULL;//hash表只需要一个。
+
+////这里有关队列的全局变量需要拓展到2份，控制两个队列分别处理。
 rfifo_t *rdqueue = NULL;
 
 time_t lastlogtime = 0 , lastsendtime =0;
