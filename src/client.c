@@ -1,15 +1,15 @@
 #include "client.h"
 
-#define DUMP_FILE_PATH "hashtable.dmp"
+#define DUMP_FILE_PATH "./hashtable_new.dmp"
 
 const double tr2KeepAlive = 60.0;
 const double sendLogTimeval = 30.0;
 const int waitReconn = 5;
-const int waitRequest = 2;
+const int waitRequest = 15;
 const int dumpWriteTimeval = 1800;
 
 
-//套接字需要拓展到2个。对应2个连接。
+//套接字需要拓展到2个。对应2个连接。 
 
 
 //int g_sockfd_sms = 0;
@@ -22,8 +22,8 @@ const int dumpWriteTimeval = 1800;
 hashtable_t* rdtable = NULL;//hash表只需要一个。
 
 //两个连接
-Connection_Info *sms_conn;
-Connection_Info *mms_conn;
+Connection_Info *sms_conn = NULL;
+Connection_Info *mms_conn = NULL;
 
 ////这里有关队列的全局变量需要拓展到2份，控制两个队列分别处理。
 //rfifo_t *rdqueue_sms = NULL;
@@ -155,13 +155,33 @@ int sendRDataMsg(RData_MsgContent* rdata, Connection_Info *_conn)
     // printf("%u", ntohl(rdata->time));
     // printf("%d", rdata->action);
     // printf("\n");
+	//int n;
+    // datanum++;
+
+    if(strlen(rdata->usernumber) != 11 || *(rdata->usernumber) != '1')
+    {
+     int i;
+    //printf("%d: ", datanum);
+    // printf("%u", rdata->length);
+    // printf("%u", rdata->type);
+    // printf("%u", rdata->roamprovince);
+    // printf("%u",  *((u_char *)&rdata->region));
+    // printf("%u",  *((u_char *)&rdata->region+1));
+     for (i = 0; i < 12; i++)
+         printf("%c", *((u_char*)rdata->usernumber + i));
+    // printf("%u", ntohl(rdata->time));
+    // printf("%d", rdata->action);
+     printf("\n");
+
+     return 1;
+    }
 
     char _datamsg[RDATAMSG_LENGTH + 1];
     _datamsg[0] = rdata->length;
     _datamsg[1] = rdata->type;
     _datamsg[2] = rdata->roamprovince;
     strncpy(_datamsg + 3, (char*)&rdata->region, 2);
-    strncpy(_datamsg + 5, rdata->usernumber, 12);
+    memcpy(_datamsg + 5, rdata->usernumber, 12);
     strncpy(_datamsg + 17, (char*)&rdata->time, 4);
     _datamsg[21] = rdata->action;
 
@@ -189,11 +209,11 @@ int sendFullRData(hashtable_t* h, u_char prov, Connection_Info *_conn)
         while (NULL != e) {
             
             RData_MsgContent* rdptr = (RData_MsgContent*)e;
-            if(prov == 0 || prov == rdptr->roamprovince){
+            //if(prov == 0 || prov == rdptr->roamprovince){
                 if(sendRDataMsg(rdptr, _conn) == 0)
                     return 0;
                 sentNum = sentNum +1;
-            }
+            //}
             e = (void*)*(unsigned long*)(e + h->offset);
         }
     }
@@ -203,33 +223,33 @@ int sendFullRData(hashtable_t* h, u_char prov, Connection_Info *_conn)
 void connectToServ(Connection_Info *_conn)
 {
 
-    char server_ip[20] = { 0 };
-    int server_port = 0;
+    //char server_ip[20] = { 0 };
+    //int server_port = 0;
     struct sockaddr_in servaddr;
 
-    if (!getSrvCfg(server_ip, &server_port)) {
+    if (!getSrvCfg(_conn)) {
         log_error(_conn->log,"Get server configuration failed.\n");
         return ;
     }
 
     int sockfd;
     _conn->isConn = 0;
+    log_info(_conn->log, "Connecting to server %s:%d ...\n", _conn->server_ip, _conn->server_port);
     while (_conn->isConn == 0) {
 
-        sockfd = Socket(AF_INET, SOCK_STREAM, 0);
+        sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-        servaddr = initSockAddr(server_ip, server_port); //move it ???
+        servaddr = initSockAddr(_conn->server_ip, _conn->server_port); //move it ???
 
         signal(SIGPIPE, SIG_IGN); /// move it to the beginning of roamClient() ???
 
-        log_info(_conn->log, "Connecting to server %s:%d ...\n", server_ip, server_port);
         if(connect(sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0){
-            log_info(_conn->log, "Connect to server %s:%d failed. Trying to reconnect... \n", server_ip, server_port);
+            //log_info(_conn->log, "Connect to server %s:%d failed. Trying to reconnect... \n", _conn->server_ip, _conn->server_port);
             close(sockfd);
             sleep(waitReconn);
         }
         else{
-            log_info(_conn->log, "Connect to server %s:%d successfully.\n", server_ip, server_port);
+            log_info(_conn->log, "Connect to server %s:%d successfully.\n", _conn->server_ip, _conn->server_port);
 
             _conn->isConn = 1;
             _conn->socket = sockfd;
@@ -258,8 +278,10 @@ void processRData(RData_MsgContent* rdata){
                 //     }
                 //     sendRDataMsg(rdata, g_sockfd);
                 // }
-                RData_MsgContent* t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
-                memcpy(t, rdata, sizeof(RData_MsgContent));
+                RData_MsgContent* sms_t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+                RData_MsgContent* mms_t = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+                memcpy(sms_t, rdata, sizeof(RData_MsgContent));
+                memcpy(mms_t, rdata, sizeof(RData_MsgContent));
 
                 if(rdata->action == 0){
                     if(hashtable_search(rdtable,rdata) != NULL ){
@@ -270,9 +292,13 @@ void processRData(RData_MsgContent* rdata){
                     free(rdata);
                     //pthread_mutex_lock(&queue_mutex);
                     if(sms_conn->isConn)
-                        rfifo_put(sms_conn->rdqueue,t);
+                        rfifo_put(sms_conn->rdqueue,sms_t);
+                    else
+                        free(sms_t);
                     if(mms_conn->isConn)
-                        rfifo_put(mms_conn->rdqueue,t);
+                        rfifo_put(mms_conn->rdqueue,mms_t);
+                    else
+                        free(mms_t);
                     //pthread_mutex_unlock(&queue_mutex);
                 }
                 else{
@@ -283,17 +309,23 @@ void processRData(RData_MsgContent* rdata){
                     }
                     else{
 
-                        RData_MsgContent* t2 = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+                        RData_MsgContent* sms_t2 = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
+                        RData_MsgContent* mms_t2 = (RData_MsgContent*)malloc(sizeof(RData_MsgContent));
                         //printf("remove origin and send leave msg when enter.\n");
                         rdptr->action = 0;
                         if(sms_conn->isConn){
-                            memcpy(t2, rdptr, sizeof(RData_MsgContent));
-                            rfifo_put(sms_conn->rdqueue,t2);
+                            memcpy(sms_t2, rdptr, sizeof(RData_MsgContent));
+                            rfifo_put(sms_conn->rdqueue,sms_t2);
                         }
-                        if(sms_conn->isConn){
-                            memcpy(t2, rdptr, sizeof(RData_MsgContent));
-                            rfifo_put(sms_conn->rdqueue,t2);
+                        else
+                            free(sms_t2);
+                        if(mms_conn->isConn){
+                            memcpy(mms_t2, rdptr, sizeof(RData_MsgContent));
+                            rfifo_put(mms_conn->rdqueue,mms_t2);
                         }
+                        else
+                            free(mms_t2);
+
                         hashtable_remove(rdtable,rdata);
                         //printf("insert into table when enter.\n");
                         hashtable_insert(rdtable,rdata);
@@ -302,11 +334,19 @@ void processRData(RData_MsgContent* rdata){
 
                     //需要分别将数据放入两个队列
                     if(sms_conn->isConn)
-                        rfifo_put(sms_conn->rdqueue,t);
+                        rfifo_put(sms_conn->rdqueue,sms_t);
+                    else
+                        free(sms_t);
                     if(mms_conn->isConn)
-                        rfifo_put(mms_conn->rdqueue,t);
+                        rfifo_put(mms_conn->rdqueue,mms_t);
+                    else
+                        free(mms_t);
                 }
-    } 
+    }
+    else{
+    
+        free(rdata);
+    }
     //printf("queue count: %d\n", rfifo_count(rdqueue));
 }
 void* roamClient(void *_conn_t)
@@ -352,7 +392,7 @@ void* roamClient(void *_conn_t)
 
                 _conn->lastsendtime = time(NULL);
 
-                //free(t);             
+                free(t);             
 
             }
             //printf("queue count: %d.\n",rfifo_count(rdqueue));
@@ -373,7 +413,7 @@ void* queueFromRabbit(){
     for(; ;){
         
         getFromRabbit();
-        //jsonStrParse(jsontest, len , rdqueue);
+        //jsonStrParse(jsontest, len);
         sleep(5);
     }
     return NULL;
@@ -381,6 +421,9 @@ void* queueFromRabbit(){
 }
 
 void *hashTableDump(){
+
+    sleep(dumpWriteTimeval);
+
     FILE* f;
     f = fopen(DUMP_FILE_PATH, "w+");
 
@@ -390,11 +433,11 @@ void *hashTableDump(){
         return 0;
     }
 
-    for(; ;){
-        sleep(dumpWriteTimeval);
+    for(; ;){    
         fseek(f, 0, SEEK_SET);
         if(rdtable != NULL)
             dumpWriteUpdate(f);
+        sleep(dumpWriteTimeval);
     }
 }
 
@@ -425,8 +468,8 @@ void dumpFileRead(){
     int readNum =0;
 
     if (f == NULL) {
-        log_info(sms_conn->log, "Open DUMP failed:%s\n", DUMP_FILE_PATH);
-        log_info(mms_conn->log, "Open DUMP failed:%s\n", DUMP_FILE_PATH);
+        log_info(sms_conn->log, "Open Dumpfile failed:%s\n", DUMP_FILE_PATH);
+        log_info(mms_conn->log, "Open Dumpfile failed:%s\n", DUMP_FILE_PATH);
         return ;
     }
 
@@ -441,7 +484,8 @@ void dumpFileRead(){
             break;
 
         readNum = readNum +1;
-        processRData(t);
+        //processRData(t);
+        hashtable_insert(rdtable,t);
     }
 
     log_info(sms_conn->log, "Read successfully. %d records got.\n",readNum);

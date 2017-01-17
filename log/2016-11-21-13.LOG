@@ -1,28 +1,0 @@
-[2016-11-21-13:57:13]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-13:57:14]-[INFO]-Connect to server 45.63.121.217:9999 failed. Trying to reconnect... 
-[2016-11-21-13:57:58]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-13:57:58]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
-[2016-11-21-13:57:58]-[INFO]-Waitting for requst from server...
-[2016-11-21-13:57:59]-[INFO]-Received REQUEST MESSAGE.
-[2016-11-21-13:57:59]-[INFO]-Send REPLY MESSAGE succeed.
-[2016-11-21-13:57:59]-[INFO]-Start to send FULL DATA.
-[2016-11-21-13:57:59]-[INFO]-Sending FULL DATA end.
-[2016-11-21-13:57:59]-[INFO]-Send FIN MESSAGE succeed.
-[2016-11-21-13:58:41]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-13:58:42]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
-[2016-11-21-13:58:42]-[INFO]-Waitting for requst from server...
-[2016-11-21-13:58:42]-[INFO]-Received REQUEST MESSAGE.
-[2016-11-21-13:58:42]-[INFO]-Send REPLY MESSAGE succeed.
-[2016-11-21-13:58:42]-[INFO]-Start to send FULL DATA.
-[2016-11-21-13:58:42]-[INFO]-Sending FULL DATA end.
-[2016-11-21-13:58:42]-[INFO]-Send FIN MESSAGE succeed.
-[2016-11-21-13:59:52]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-13:59:53]-[INFO]-Connect to server 45.63.121.217:9999 failed. Trying to reconnect... 
-[2016-11-21-13:59:58]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-13:59:59]-[INFO]-Connect to server 45.63.121.217:9999 succeed.
-[2016-11-21-13:59:59]-[INFO]-Waitting for requst from server...
-[2016-11-21-13:59:59]-[INFO]-Received REQUEST MESSAGE.
-[2016-11-21-13:59:59]-[INFO]-Send REPLY MESSAGE succeed.
-[2016-11-21-13:59:59]-[INFO]-Start to send FULL DATA.
-[2016-11-21-13:59:59]-[INFO]-Sending FULL DATA end.
-[2016-11-21-13:59:59]-[INFO]-Send FIN MESSAGE succeed.

@@ -33,7 +33,7 @@ RData_MsgContent* j2s(const char* _json)
     *((u_char *)&rdata->region) = 0;
     *((u_char *)&rdata->region+1) = 0;
     strncpy(rdata->usernumber, (char*)struct_rdata->usernumber+2, 11);
-    rdata->usernumber[11] = '0';
+    rdata->usernumber[11] = 0;
     rdata->time = htonl(struct_rdata->time);
     rdata->action = struct_rdata->action;
     rdata->next = NULL;
@@ -75,7 +75,10 @@ void jsonStrParse(const char* jsonstr, int len)
 
     RData_MsgContent* rdata;
 
-    while (jsonstr[cur] != '{')
+    if (len < 116)
+        return ;
+ 
+    while (cur < 116 && jsonstr[cur] != '{')
         cur++;
     //printf("1\n");
     while (cur <= len - 115) {

@@ -67,6 +67,9 @@ void getFromRabbit()
     amqp_basic_consume(conn, channelid, amqp_bytes_malloc_dup(r->queue), amqp_empty_bytes, 0, 0, 0, amqp_empty_table);
     die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
 
+    log_info(sms_conn->log, "Connect to rabbitmq successfully.\n");
+    log_info(mms_conn->log, "Connect to rabbitmq successfully.\n");
+
     {
         amqp_frame_t frame;
         int result;
@@ -126,12 +129,12 @@ void getFromRabbit()
                 body_received += frame.payload.body_fragment.len;
                 assert(body_received <= body_target);
 
-                int i;
-                for (i = 0; i < frame.payload.body_fragment.len; i++) {
+                //int i;
+                //for (i = 0; i < frame.payload.body_fragment.len; i++) {
                     //fprintf(f,"%c",*((char*)frame.payload.body_fragment.bytes+i));
-                    if (*((char*)frame.payload.body_fragment.bytes + i) == '.')
-                        sleep_seconds++;
-                }
+                    //if (*((char*)frame.payload.body_fragment.bytes + i) == '.')
+                        //sleep_seconds++;
+                //}
                 jsonStrParse((char*)frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
                 //fprintf(f,"\n------------------------------------------\n");
                 //fprintf(f,"\n");
@@ -153,6 +156,9 @@ void getFromRabbit()
     die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
     die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
     die_on_error(amqp_destroy_connection(conn), "Ending connection");
+
+    log_info(sms_conn->log, "End connection with rabbitmq.\n");
+    log_info(mms_conn->log, "End connection with rabbitmq.\n");
 }
 
 int getRabbitCfg(char *_host, int *_port, char *_user, char *_pwd,

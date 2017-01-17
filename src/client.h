@@ -1,9 +1,6 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
-
-
-#include "sockoperation.h"
 #include "msgstruct.h"
 #include "hashtable.h"
 #include "datahash.h"
@@ -13,7 +10,10 @@
 #include "getrabbit.h"
 #include "log.h"
 
+enum {SMSCONN=1,MMSCONN=2};
+
 typedef struct Connection{
+	int type;
   	int socket;
   	log_t * log;
   	rfifo_t *rdqueue;
@@ -22,7 +22,11 @@ typedef struct Connection{
 	int leavenum;
 	int enternum;
 	int isConn;
+	char server_ip[20];
+	int server_port;
 } Connection_Info;
+
+#include "sockoperation.h"
 
 //extern int g_sockfd;
 //extern rfifo_t *rdqueue;

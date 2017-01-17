@@ -1,46 +1,0 @@
-[2016-11-21-18:07:03]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-18:07:03]-[INFO]-Connect to server 45.63.121.217:9999 successfully.
-[2016-11-21-18:07:03]-[INFO]-Waitting for requst from server...
-[2016-11-21-18:07:03]-[INFO]-Received REQUEST MESSAGE.
-[2016-11-21-18:07:03]-[INFO]-Send REPLY MESSAGE successfully.
-[2016-11-21-18:07:03]-[INFO]-Start to send FULL DATA.
-[2016-11-21-18:07:03]-[INFO]-Sending FULL DATA end.
-[2016-11-21-18:07:03]-[INFO]-Send FIN MESSAGE successfully.
-[2016-11-21-18:07:08]-[INFO]-Send 3351 msg totally in 5 secs.[LEAVE: 954, ENTER: 2397]
-[2016-11-21-18:07:13]-[INFO]-Send 1013 msg totally in 5 secs.[LEAVE: 305, ENTER: 708]
-[2016-11-21-18:07:18]-[INFO]-Send 3201 msg totally in 5 secs.[LEAVE: 1001, ENTER: 2200]
-[2016-11-21-18:07:23]-[INFO]-Send 972 msg totally in 5 secs.[LEAVE: 297, ENTER: 675]
-[2016-11-21-18:07:28]-[INFO]-Send 1444 msg totally in 5 secs.[LEAVE: 393, ENTER: 1051]
-[2016-11-21-18:07:33]-[INFO]-Send 2808 msg totally in 5 secs.[LEAVE: 869, ENTER: 1939]
-[2016-11-21-18:07:38]-[INFO]-Send 3388 msg totally in 5 secs.[LEAVE: 1259, ENTER: 2129]
-[2016-11-21-18:07:44]-[INFO]-Send 2803 msg totally in 5 secs.[LEAVE: 832, ENTER: 1971]
-[2016-11-21-18:07:49]-[INFO]-Send 1977 msg totally in 5 secs.[LEAVE: 585, ENTER: 1392]
-[2016-11-21-18:07:54]-[INFO]-Send 1957 msg totally in 5 secs.[LEAVE: 643, ENTER: 1314]
-[2016-11-21-18:08:00]-[INFO]-Send 2343 msg totally in 5 secs.[LEAVE: 657, ENTER: 1686]
-[2016-11-21-18:08:06]-[INFO]-Send 1720 msg totally in 5 secs.[LEAVE: 537, ENTER: 1183]
-[2016-11-21-18:08:11]-[INFO]-Send 3146 msg totally in 5 secs.[LEAVE: 1169, ENTER: 1977]
-[2016-11-21-18:14:55]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-18:14:56]-[INFO]-Connect to server 45.63.121.217:9999 successfully.
-[2016-11-21-18:14:56]-[INFO]-Waitting for requst from server...
-[2016-11-21-18:14:56]-[INFO]-Received REQUEST MESSAGE.
-[2016-11-21-18:14:56]-[INFO]-Send REPLY MESSAGE successfully.
-[2016-11-21-18:14:56]-[INFO]-Start to send FULL DATA.
-[2016-11-21-18:14:56]-[INFO]-Sending FULL DATA end.
-[2016-11-21-18:14:56]-[INFO]-Send FIN MESSAGE successfully.
-[2016-11-21-18:15:02]-[INFO]-Send 1893 msg totally in 5 secs.[LEAVE: 467, ENTER: 1426]
-[2016-11-21-18:15:07]-[INFO]-Send 1176 msg totally in 5 secs.[LEAVE: 390, ENTER: 786]
-[2016-11-21-18:15:13]-[INFO]-Send 2755 msg totally in 5 secs.[LEAVE: 791, ENTER: 1964]
-[2016-11-21-18:15:18]-[INFO]-Send 2398 msg totally in 5 secs.[LEAVE: 709, ENTER: 1689]
-[2016-11-21-18:15:23]-[INFO]-Send 3250 msg totally in 5 secs.[LEAVE: 1301, ENTER: 1949]
-[2016-11-21-18:17:28]-[INFO]-Connecting to server 45.63.121.217:9999 ...
-[2016-11-21-18:17:28]-[INFO]-Connect to server 45.63.121.217:9999 successfully.
-[2016-11-21-18:17:28]-[INFO]-Waitting for requst from server...
-[2016-11-21-18:17:28]-[INFO]-Received REQUEST MESSAGE.
-[2016-11-21-18:17:28]-[INFO]-Send REPLY MESSAGE successfully.
-[2016-11-21-18:17:28]-[INFO]-Start to send FULL DATA.
-[2016-11-21-18:17:28]-[INFO]-Sending FULL DATA end.
-[2016-11-21-18:17:28]-[INFO]-Send FIN MESSAGE successfully.
-[2016-11-21-18:17:34]-[INFO]-Send 1876 msg totally in 5 secs.[LEAVE: 588, ENTER: 1288]
-[2016-11-21-18:17:40]-[INFO]-Send 1404 msg totally in 5 secs.[LEAVE: 384, ENTER: 1020]
-[2016-11-21-18:17:45]-[INFO]-Send 2265 msg totally in 5 secs.[LEAVE: 700, ENTER: 1565]
-[2016-11-21-18:17:50]-[INFO]-Send 3492 msg totally in 5 secs.[LEAVE: 1375, ENTER: 2117]

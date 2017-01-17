@@ -11,15 +11,19 @@ int main()
     int ret = 0;
 
     //初始化2个连接
+    sms_conn = (Connection_Info *)malloc(sizeof(Connection_Info));
+    mms_conn = (Connection_Info *)malloc(sizeof(Connection_Info));
     memset(sms_conn, 0, sizeof(*sms_conn));
     memset(mms_conn, 0, sizeof(*mms_conn));
+    sms_conn->type = SMSCONN;
+    mms_conn->type = MMSCONN;
 
     //日志拓展到2个，一个为SMS，一个为MMS。
     sms_conn->log = log_create(LOG_PATH, "SMS_LOG", Log_debug);
     mms_conn->log = log_create(LOG_PATH, "MMS_LOG", Log_debug);
 
     //hash表仍为一个
-    rdtable = hashtable_create(1000, sizeof(RData_MsgContent), 0, 1, rd_free, rd_hash, rd_compare);
+    rdtable = hashtable_create(65535*1000, sizeof(RData_MsgContent), 0, 1, rd_free, rd_hash, rd_compare);
     
     //2个队列。
     sms_conn->rdqueue = rfifo_create(30000,NULL);
